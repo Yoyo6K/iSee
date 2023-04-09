@@ -1,3 +1,4 @@
+const chalk = require('chalk');
 const mongoose = require('mongoose');
 
 module.exports.connect = async () => {
@@ -6,8 +7,7 @@ module.exports.connect = async () => {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    console.log("Connected to MongoDB");
   } catch (error) {
-    console.error("Error connecting to MongoDB:", error);
+    console.error(chalk.red("Error connecting to MongoDB:", error));
   }
 };
