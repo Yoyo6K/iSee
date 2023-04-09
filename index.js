@@ -12,18 +12,17 @@ const userRoutes = require('./src/routes/userRoutes');
 // const commentRoutes = require('./src/routes/commentRoutes');
 // const livechatRoutes = require('./src/routes/livechatRoutes');
 
-
 const dbConnect = require('./config/connectMongo')
 
 /**
  * * MONGO
  */
+const db = mongoose.connection;
+
 
 dbConnect.connect().catch (error => console.log(error));
 
-const db = mongoose.connection;
-
-db.once("open", () => { console.log(chalk.green("MongoDB Database Connected at", chalk.blue(db.name))); });
+db.once("open", () => { console.log(chalk.green("MongoDB Database Connected on", chalk.blue(db.name))); });
 db.on("error", (error) => {console.error(error);});
 
 
@@ -43,6 +42,10 @@ app.use('/api/users', userRoutes);
 // app.use('/api/comments', commentRoutes);
 // app.use('/api/livechat', livechatRoutes);
 
+
+/**
+ * * SWAGGER
+ */
 
 const swaggerUi = require('swagger-ui-express'),
   swaggerDocument = require('./swagger.json');
