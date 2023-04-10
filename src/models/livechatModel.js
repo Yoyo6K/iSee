@@ -22,4 +22,4 @@ const LivechatSchema = new Schema({
   },
 });
 
-module.exports = mongoose.model('Livechat', LivechatSchema);
+module.exports = mongoose.model('Livechats', LivechatSchema);

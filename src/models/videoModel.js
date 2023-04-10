@@ -38,4 +38,4 @@ const videoModel = new Schema({
   },
 });
 
-module.exports = mongoose.model('Video', videoModel);
+module.exports = mongoose.model('Videos', videoModel);
