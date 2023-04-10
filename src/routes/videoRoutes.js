@@ -15,10 +15,10 @@ router.get("/", getAllVideos);
 
 router.get("/:id", getVideo);
 
-router.post("/", uploadVideo);
+router.post("/", isAuth, uploadVideo);
 
-router.put("/:id", updateVideo);
+router.put("/:id", isAuth, updateVideo);
 
-router.delete("/:id", deleteVideo);
+router.delete("/:id", isAuth, isAdmin, deleteVideo);
 
 module.exports = router;
