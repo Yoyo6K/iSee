@@ -7,33 +7,28 @@ const videoModel = new Schema({
     ref: 'User',
     required: true,
   },
-  title: {
+  titre: {
     type: String,
     required: true,
   },
   description: {
     type: String,
   },
-  url: {
+  video_path: {
     type: String,
     required: true,
   },
-  thumbnail: {
+  miniature: {
     type: String,
   },
-  views: {
+  nb_vue: {
     type: Number,
     default: 0,
   },
-  isHidden: {
-    type: Boolean,
-    default: false,
+  status: {
+    type: Number,
   },
-  isBlocked: {
-    type: Boolean,
-    default: false,
-  },
-  createdAt: {
+  upload_date: {
     type: Date,
     default: Date.now,
   },
