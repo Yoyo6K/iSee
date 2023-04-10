@@ -4,19 +4,21 @@ const isAuth = require("../middleware/isAuth");
 const isAdmin = require("../middleware/isAdmin");
 
 const {
-  userProfile,
   userDisplayAll,
+  userProfile,
   userRegister,
   userLogin,
   userUpdate,
   userDelete,
 } = require("../controllers/userController");
 
-router.get("/allusers", isAuth, userDisplayAll);
+router.get("/displayAll", isAuth, isAdmin, userDisplayAll);
 
 router.get("/profile", isAuth, userProfile);
 
 router.post("/register", userRegister);
+
+router.post("/login", userLogin);
 
 router.put("/update", isAuth, userUpdate);
 

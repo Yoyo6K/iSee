@@ -3,7 +3,7 @@ isAdmin = async (req, res, next) => {
     console.log(req.user);
 
     try {
-        if (req.user.role == 'Admin') {
+        if (req.user.isAdmin == true) {
             next()
           } else {
             return res.status(403).send('You don\'t have permissions')

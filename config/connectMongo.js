@@ -1,13 +1,16 @@
-const chalk = require('chalk');
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const MONGODB_URI = process.env.MONGODB_URI;
 
-module.exports.connect = async () => {
-  try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-  } catch (error) {
-    console.error(chalk.red("Error connecting to MongoDB:", error));
-  }
-};
+module.exports.connect = async (callback) => {
+    mongoose.set("strictQuery", true);
+    mongoose.connect(MONGODB_URI, error => {
+            if (error) {
+                console.error('Connection failed')
+                console.log(error);
+            } else {
+                if (callback) {
+                    callback(mongoose)
+                }
+            }
+    })
+}

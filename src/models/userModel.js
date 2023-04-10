@@ -26,6 +26,10 @@ const userModel = new Schema({
     required: true,
     default: false,
   },
+  isValidated: {
+    type: Boolean,
+    default: false,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -33,10 +37,6 @@ const userModel = new Schema({
   updatedAt: {
     type: Date,
     default: Date.now,
-  },
-  isDeleted: {
-    type: Boolean,
-    default: false,
   },
 });
 

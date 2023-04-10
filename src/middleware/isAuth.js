@@ -6,13 +6,12 @@ isAuth = async (req, res, next) => {
 
   if (req.headers.authorization) {
     const token = req.headers.authorization.split(" ")[1];
-
     try {
       const jwt_token = jwt.verify(token, process.env.JWT_SECRET);
       const user = await User.findById(jwt_token.id);
 
-     console.log(jwt_token);
-     console.log(user);
+      console.log(jwt_token);
+      console.log(user);
 
       if (!user) {
         return res.status(403).send("You dont have the permission");
