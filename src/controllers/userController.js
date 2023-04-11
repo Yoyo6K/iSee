@@ -112,10 +112,6 @@ exports.userRegister = async (req, res) => {
 
 exports.userUpdate = async (req, res) => {
   try {
-
-    if (!req.user) return res.status(401).send({ error: "Not authenticated" });
-
-
     const user = await User.findByIdAndUpdate(
       req.query._id,
       { ...req.body },
@@ -132,8 +128,6 @@ exports.userDelete = async (req, res) => {
   try {
     const paramsId = req.query._id;
     const userId = req.user._id;
-
-    if (!req.user) return res.status(401).send({ error: "Not authenticated" });
 
     if (paramsId !== undefined) {
       if (paramsId != userId && req.user.role != "Admin") {
