@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const videoModel = new Schema({
   ownerId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Users',
     required: true,
   },
   titre: {
@@ -18,7 +18,7 @@ const videoModel = new Schema({
     type: String,
     required: true,
   },
-  miniature: {
+  thumbnail: {
     type: String,
   },
   nb_vue: {
@@ -26,7 +26,8 @@ const videoModel = new Schema({
     default: 0,
   },
   status: {
-    type: Number,
+    type: Schema.Types.ObjectId,
+    ref: 'VideoStatus',
   },
   upload_date: {
     type: Date,
