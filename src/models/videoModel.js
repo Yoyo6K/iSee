@@ -7,7 +7,7 @@ const videoModel = new Schema({
     ref: 'Users',
     required: true,
   },
-  titre: {
+  title: {
     type: String,
     required: true,
   },
@@ -18,10 +18,10 @@ const videoModel = new Schema({
     type: String,
     required: true,
   },
-  thumbnail: {
+  thumbnail_path: {
     type: String,
   },
-  nb_vue: {
+  views: {
     type: Number,
     default: 0,
   },

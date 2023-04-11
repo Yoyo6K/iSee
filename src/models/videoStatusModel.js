@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const videoStatusSchema = new Schema({
-  libelle: {
+  name: {
     type: String,
     required: true,
   },

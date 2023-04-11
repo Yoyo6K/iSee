@@ -27,16 +27,16 @@ exports.getVideo = async (req, res) => {
 exports.uploadVideo = async (req, res) => {
   try {
     const videoFile = req.file;
-    const { titre, description, status } = req.body;
+    const { title, description, status } = req.body;
     const videoPath = "";
-    const miniature = "";
+    const thumbnailPath = "";
 
     const newVideo = new Video({
       ownerId: req.user._id,
-      titre,
+      title,
       description,
       video_path: videoPath,
-      miniature,
+      thumbnail_path,
       status,
     });
 

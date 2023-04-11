@@ -50,9 +50,14 @@ exports.userLogin = async (req, res) => {
         } else {
           // Générez un jeton JWT pour l'utilisateur
           const token = jwt.sign(
-            { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin },
+            {
+              id: user._id,
+              username: user.username,
+              email: user.email,
+              isAdmin: user.isAdmin,
+            },
             process.env.JWT_SECRET,
-            { expiresIn: "1h" }
+            { expiresIn: "5h" }
           );
           res.send({ token });
         }
@@ -97,9 +102,14 @@ exports.userRegister = async (req, res) => {
             } else {
               // Générez un jeton JWT pour l'utilisateur
               const token = jwt.sign(
-                { id: user._id, username: user.username, email: user.email, isAdmin: user.isAdmin },
+                {
+                  id: user._id,
+                  username: user.username,
+                  email: user.email,
+                  isAdmin: user.isAdmin,
+                },
                 process.env.JWT_SECRET,
-                { expiresIn: "1h" }
+                { expiresIn: "5h" }
               );
               res.send({ token });
             }
@@ -112,9 +122,25 @@ exports.userRegister = async (req, res) => {
 
 exports.userUpdate = async (req, res) => {
   try {
+    const { username, email } = req.body;
+
+    // Vérifier si le nouveau nom d'utilisateur existe déjà
+    const existingUser = await User.findOne({ username });
+
+    if (existingUser && existingUser._id.toString() !== id) {
+      return res.status(400).json({ message: "This username is already taken." });
+    }
+
+    // Vérifier si le nouvel e-mail existe déjà
+    const existingEmail = await User.findOne({ email });
+
+    if (existingEmail && existingEmail._id.toString() !== id) {
+      return res.status(400).json({ message: "This email is already in use." });
+    }
+
     const user = await User.findByIdAndUpdate(
-      req.query._id,
-      { ...req.body },
+      req.user._id,
+      { ...req.body, updatedAt: new Date() },
       { new: true }
     );
     res.status(200).send(user);
@@ -125,22 +151,24 @@ exports.userUpdate = async (req, res) => {
 };
 
 exports.userDelete = async (req, res) => {
+  const userId = req.user._id;
+
   try {
-    const paramsId = req.query._id;
-    const userId = req.user._id;
-
-    if (paramsId !== undefined) {
-      if (paramsId != userId && req.user.role != "Admin") {
-        return res.status(403).send({ error: "You don't have the permission" });
+    // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
+    bcrypt.compare(
+      req.body.password,
+      req.user.password,
+      async (err, result) => {
+        if (err) {
+          res.status(500).send(err);
+        } else if (!result) {
+          res.status(401).send({ message: "Incorrect Password" });
+        } else {
+          const user = await User.deleteOne({ _id: userId });
+          res.send(user);
+        }
       }
-    } else {
-      return res
-        .status(400)
-        .send({ error: "Missing user ID in query parameters" });
-    }
-
-    const user = await User.deleteOne({ _id: paramsId });
-    res.send(user);
+    );
   } catch (error) {
     res.status(400).json({ error: "You don't have the permission" });
   }

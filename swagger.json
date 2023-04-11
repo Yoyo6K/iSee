@@ -86,8 +86,7 @@
                 "type": "object",
                 "properties": {
                   "email": {
-                    "type": "string",
-                    "example": "mail@exemple.com"
+                    "type": "string"
                   },
                   "password": {
                     "type": "string"
@@ -195,12 +194,16 @@
                 "type": "object",
                 "properties": {
                   "username": {
-                    "type": "string",
-                    "example": "username"
+                    "type": "string"
                   },
                   "email": {
-                    "type": "string",
-                    "example": "mail@exemple.com"
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "isAdmin": {
+                    "type": "boolean"
                   }
                 }
               }
