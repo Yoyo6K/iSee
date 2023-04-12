@@ -4,24 +4,28 @@ const isAuth = require("../middleware/isAuth");
 const isAdmin = require("../middleware/isAdmin");
 
 const {
-  userDisplayAll,
-  userProfile,
-  userRegister,
-  userLogin,
-  userUpdate,
-  userDelete,
+  getAllUsers,
+  profileUsers,
+  loginUsers,
+  registerUsers,
+  updateUsers,
+  deleteUsers,
+  logoutUsers,
 } = require("../controllers/userController");
 
-router.get("/displayAll", isAuth, isAdmin, userDisplayAll);
+router.get("/getAll", isAuth, isAdmin, getAllUsers);
 
-router.get("/profile", isAuth, userProfile);
+router.get("/profile", isAuth, profileUsers);
 
-router.post("/register", userRegister);
+router.post("/login", loginUsers);
 
-router.post("/login", userLogin);
+router.post("/register", registerUsers);
 
-router.put("/update", isAuth, userUpdate);
+router.put("/update", isAuth, updateUsers);
 
-router.delete("/delete", isAuth, userDelete);
+router.delete("/delete", isAuth, deleteUsers);
+
+router.post('/logout', isAuth, logoutUsers);
+
 
 module.exports = router;

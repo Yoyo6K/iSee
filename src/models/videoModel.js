@@ -25,9 +25,9 @@ const videoModel = new Schema({
     type: Number,
     default: 0,
   },
-  status: {
+  state: {
     type: Schema.Types.ObjectId,
-    ref: 'VideoStatus',
+    ref: 'VideoStates',
   },
   upload_date: {
     type: Date,

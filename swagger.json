@@ -19,7 +19,7 @@
     }
   },
   "paths": {
-    "/api/users/displayAll": {
+    "/api/users/getAll": {
       "get": {
         "tags": [
           "Users"
@@ -146,6 +146,50 @@
         }
       }
     },
+    "/api/users/update": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update User",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "username": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string"
+                  },
+                  "password": {
+                    "type": "string"
+                  },
+                  "isAdmin": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
     "/api/users/delete": {
       "delete": {
         "tags": [
@@ -181,40 +225,86 @@
         }
       }
     },
-    "/api/users/update": {
-      "put": {
+    "/api/users/logout": {
+      "post": {
         "tags": [
           "Users"
         ],
-        "summary": "Update User",
+        "description": "Log Out",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/videoStates/getAll": {
+      "get": {
+        "tags": [
+          "VideoStates"
+        ],
+        "summary": "List of Videos States",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "403": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/api/videoStates/add": {
+      "post": {
+        "tags": [
+          "VideoStates"
+        ],
+        "summary": "Add a Video State",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
         "requestBody": {
           "content": {
             "application/x-www-form-urlencoded": {
               "schema": {
                 "type": "object",
                 "properties": {
-                  "username": {
+                  "name": {
                     "type": "string"
-                  },
-                  "email": {
-                    "type": "string"
-                  },
-                  "password": {
-                    "type": "string"
-                  },
-                  "isAdmin": {
-                    "type": "boolean"
                   }
                 }
               }
             }
           }
         },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
         "responses": {
           "200": {
             "description": "Successful response",

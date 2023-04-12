@@ -4,10 +4,13 @@ const jwt = require("jsonwebtoken");
 
 const User = require("../models/userModel");
 
-const { validateLogin } = require("../middleware/validator");
-const { validateRegister } = require("../middleware/validator");
+const {
+  validateLogin,
+  validateRegister,
+  validateUpdate,
+} = require("../middleware/validator");
 
-exports.userDisplayAll = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find().select("-password");
     res.status(200).send(users);
@@ -16,16 +19,18 @@ exports.userDisplayAll = async (req, res) => {
   }
 };
 
-exports.userProfile = async (req, res) => {
+exports.profileUsers = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id).select(
+      "-_id -isValidated -createdAt -updatedAt -__v"
+    );
     res.status(200).send(user);
   } catch (error) {
     res.status(500).send({ error: "Error fetching user profile" });
   }
 };
 
-exports.userLogin = async (req, res) => {
+exports.loginUsers = async (req, res) => {
   // Joi Validation
   const { error } = validateLogin(req.body);
 
@@ -66,7 +71,7 @@ exports.userLogin = async (req, res) => {
   });
 };
 
-exports.userRegister = async (req, res) => {
+exports.registerUsers = async (req, res) => {
   const { error } = validateRegister(req.body);
 
   if (error) {
@@ -120,37 +125,54 @@ exports.userRegister = async (req, res) => {
   });
 };
 
-exports.userUpdate = async (req, res) => {
+exports.updateUsers = async (req, res) => {
+  const { error } = validateUpdate(req.body);
+
+  if (error) {
+    console.log(error);
+    return res.send(error.details);
+  }
+
   try {
     const { username, email } = req.body;
 
     // Vérifier si le nouveau nom d'utilisateur existe déjà
     const existingUser = await User.findOne({ username });
 
-    if (existingUser && existingUser._id.toString() !== id) {
-      return res.status(400).json({ message: "This username is already taken." });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ message: "This username is already taken." });
     }
 
     // Vérifier si le nouvel e-mail existe déjà
     const existingEmail = await User.findOne({ email });
 
-    if (existingEmail && existingEmail._id.toString() !== id) {
+    if (existingEmail) {
       return res.status(400).json({ message: "This email is already in use." });
     }
 
-    const user = await User.findByIdAndUpdate(
-      req.user._id,
-      { ...req.body, updatedAt: new Date() },
-      { new: true }
-    );
-    res.status(200).send(user);
+    // Hash le mot de passe de l'utilisateur
+    bcrypt.hash(req.body.password, 10, async (err, hash) => {
+      if (err) {
+        res.status(500).send(err);
+      } else {
+        const user = await User.findByIdAndUpdate(
+          req.user._id,
+          { ...req.body, password: hash, updatedAt: new Date() },
+          { new: true }
+        );
+        res.status(200).send(user);
+      }
+    });
+
   } catch (error) {
     console.log(error);
     res.status(400).json({ error });
   }
 };
 
-exports.userDelete = async (req, res) => {
+exports.deleteUsers = async (req, res) => {
   const userId = req.user._id;
 
   try {
@@ -173,3 +195,17 @@ exports.userDelete = async (req, res) => {
     res.status(400).json({ error: "You don't have the permission" });
   }
 };
+
+// exports.logoutUsers = async (req, res) => {
+
+//   if (req.headers && req.headers.authorization) {
+//       const token = req.headers.authorization.split(' ')[1];
+//       if (!token) return res.status(401).send('Authorization fail !')
+
+      
+//       const newTokens = token.filter(t => t.token !== token);
+
+//       await User.findByIdAndUpdate(req.user._id, { token: newTokens });
+//       res.status(200).send('Sign out successfully !')
+//   }
+// };
