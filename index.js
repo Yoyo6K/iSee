@@ -9,9 +9,8 @@ const cors = require('cors');
 
 const userRoutes = require('./src/routes/userRoutes');
 const videoStatesRoutes = require('./src/routes/videoStatesRoutes');
-
-// const videoRoutes = require('./src/routes/videoRoutes');
-// const commentRoutes = require('./src/routes/commentRoutes');
+const videoRoutes = require('./src/routes/videoRoutes');
+const commentRoutes = require('./src/routes/commentRoutes');
 // const livechatRoutes = require('./src/routes/livechatRoutes');
 
 const dbConnect = require('./config/connectMongo')
@@ -41,9 +40,8 @@ app.use(cors());
 
 app.use('/api/users', userRoutes);
 app.use('/api/videoStates', videoStatesRoutes);
-
-// app.use('/api/videos', videoRoutes);
-// app.use('/api/comments', commentRoutes);
+app.use('/api/videos', videoRoutes);
+app.use('/api/comments', commentRoutes);
 // app.use('/api/livechat', livechatRoutes);
 
 
