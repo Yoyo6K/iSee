@@ -48,7 +48,7 @@ exports.uploadVideo = async (req, res) => {
   }
 };
 
-exports.videoUpdate = async (req, res) => {
+exports.updateVideo = async (req, res) => {
   try {
     const videoId = req.params.videoId;
     const userId = req.user._id;
