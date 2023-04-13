@@ -31,12 +31,7 @@ const commentModel = new Schema({
   dislikesCount: {
     type: Number,
     default: 0,
-  },  
-  parentComment: {
-    type: Schema.Types.ObjectId,
-    ref: 'Comments',
-    default: null,
-  },
+  }
 });
 
 module.exports = mongoose.model('Comments', commentModel);
