@@ -5,7 +5,7 @@ exports.getCommentsByVideoId = async (req, res) => {
       const videoId = req.params.videoId;
       const comments = await Comment.find({ videoId, parentComment: null })
         .populate("userId", "username createdAt") //methoed de mongoose pour recuperer les info des users
-  
+        .sort({ createdAt: -1 });
       res.status(200).send(comments);
     } catch (error) {
       res.status(500).send({ error: "Error fetching comments" });
