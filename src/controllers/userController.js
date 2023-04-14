@@ -195,17 +195,3 @@ exports.deleteUsers = async (req, res) => {
     res.status(400).json({ error: "You don't have the permission" });
   }
 };
-
-// exports.logoutUsers = async (req, res) => {
-
-//   if (req.headers && req.headers.authorization) {
-//       const token = req.headers.authorization.split(' ')[1];
-//       if (!token) return res.status(401).send('Authorization fail !')
-
-      
-//       const newTokens = token.filter(t => t.token !== token);
-
-//       await User.findByIdAndUpdate(req.user._id, { token: newTokens });
-//       res.status(200).send('Sign out successfully !')
-//   }
-// };

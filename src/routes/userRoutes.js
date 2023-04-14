@@ -25,7 +25,4 @@ router.put("/update", isAuth, updateUsers);
 
 router.delete("/delete", isAuth, deleteUsers);
 
-// router.post('/logout', isAuth, logoutUsers);
-
-
 module.exports = router;
