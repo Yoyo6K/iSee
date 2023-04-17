@@ -2,8 +2,8 @@ const Video = require("../models/videoModel");
 
 exports.getAllVideos = async (req, res) => {
   try {
-    const publicStatus = 1;
-    const videos = await Video.find({ status: publicStatus });
+    const defaultState = "Public";
+    const videos = await Video.find({ status: defaultState });
     res.status(200).send(videos);
   } catch (error) {
     res.status(500).send({ error: "Error fetching all videos" });
@@ -12,7 +12,8 @@ exports.getAllVideos = async (req, res) => {
 
 exports.getVideo = async (req, res) => {
   try {
-    const video = await Video.findOne({ _id: req.params.id, status: 1 });
+    const defaultState = "Public";
+    const video = await Video.findOne({ _id: req.params.id, state: defaultState });
 
     if (!video) {
       return res.status(404).send({ error: "Video not found" });
@@ -27,17 +28,15 @@ exports.getVideo = async (req, res) => {
 exports.uploadVideo = async (req, res) => {
   try {
     const videoFile = req.file;
-    const { title, description, status } = req.body;
-    const videoPath = "";
-    const thumbnailPath = "";
+    const { title, description, state, videoPath, thumbnailPath } = req.body;
 
     const newVideo = new Video({
       ownerId: req.user._id,
-      title,
-      description,
+      title: title,
+      description: description,
       video_path: videoPath,
-      thumbnail_path,
-      status,
+      thumbnail_path: thumbnailPath,
+      state: state,
     });
 
     const savedVideo = await newVideo.save();

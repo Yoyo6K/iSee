@@ -26,8 +26,10 @@ const videoModel = new Schema({
     default: 0,
   },
   state: {
-    type: Schema.Types.ObjectId,
-    ref: 'VideoStates',
+    type: String,
+    enum: ["Privée", "Public", "Non Répertorié"],
+    required: true,
+    default: "Public",
   },
   upload_date: {
     type: Date,
