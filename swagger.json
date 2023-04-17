@@ -225,34 +225,6 @@
         }
       }
     },
-    "/api/users/logout": {
-      "post": {
-        "tags": [
-          "Users"
-        ],
-        "description": "Log Out",
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "401": {
-            "description": "Unauthorized"
-          },
-          "403": {
-            "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
     "/api/videoStates/getAll": {
       "get": {
         "tags": [
@@ -311,6 +283,401 @@
             "content": {
               "application/json": {}
             }
+          }
+        }
+      }
+    },
+    "/api/comments/:videoId": {
+      "get": {
+        "tags": [
+              "Comments"
+            ],
+            "summary": "Get comments by video ID",
+            "parameters": [
+              {
+                "name": "videoId",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {}
+                }
+              },
+              "500": {
+                "description": "Error fetching comments"
+              }
+          }
+      }
+    },
+    "/api/comments/add": {
+      "post": {
+        "tags": [
+              "Comments"
+            ],
+            "summary": "Add a comment",
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ],
+            "requestBody": {
+              "content": {
+                "application/x-www-form-urlencoded": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "videoId": {
+                        "type": "string"
+                      },
+                      "content": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "responses": {
+              "201": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {}
+                }
+              },
+              "500": {
+                "description": "Error adding comment"
+              }
+          }
+      }
+    },
+    "/api/comments/like/:commentId": {
+      "put": {
+        "tags": [
+              "Comments"
+            ],
+            "summary": "Like a comment",
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ],
+            "parameters": [
+              {
+                "name": "commentId",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {}
+                }
+              },
+              "500": {
+                "description": "Error liking the comment"
+              }
+          }
+      }
+    },
+    "/api/comments/dislike/:commentId": {
+      "put": {
+        "tags": [
+              "Comments"
+            ],
+            "summary": "Dislike a comment",
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ],
+            "parameters": [
+              {
+                "name": "commentId",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {}
+                }
+              },
+              "500": {
+                "description": "Error disliking the comment"
+              }
+          }
+      }
+    },
+    "/api/comments/delete/:commentId": {
+      "delete": {
+        "tags": [
+              "Comments"
+            ],
+            "summary": "Delete a comment",
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ],
+            "parameters": [
+              {
+                "name": "commentId",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "403": {
+                "description": "You don't have permission"
+              },
+              "404": {
+                "description": "Comment not found"
+              },
+              "500": {
+                "description": "Error deleting comment"
+              }
+            }
+          }
+    },
+    "/api/videos/getAll": {
+      "get": {
+        "tags": [
+              "Videos"
+            ],
+            "summary": "Get all public videos",
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {}
+                }
+              },
+              "500": {
+                "description": "Error fetching all videos"
+              }
+            }
+          }
+    },
+    "/api/videos/get/:id": {
+      "get": {
+        "tags": [
+              "Videos"
+            ],
+            "summary": "Get a public video by ID",
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {}
+                }
+              },
+              "404": {
+                "description": "Video not found"
+              },
+              "500": {
+                "description": "Error fetching video"
+              }
+            }
+          }
+    },
+    "/api/videos/upload": {
+      "post": {
+        "tags": [
+              "Videos"
+            ],
+            "summary": "Upload a video",
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ],
+            "requestBody": {
+              "content": {
+                "multipart/form-data": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "number"
+                      },
+                      "file": {
+                        "type": "string",
+                        "format": "binary"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "responses": {
+              "201": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {}
+                }
+              },
+              "500": {
+                "description": "Error uploading video"
+              }
+            }
+          }
+    },
+    "/api/videos/update/:videoId": {
+      "put": {
+        "tags": [
+              "Videos"
+            ],
+            "summary": "Update a video",
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ],
+            "parameters": [
+              {
+                "name": "videoId",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ],
+            "requestBody": {
+              "content": {
+                "application/x-www-form-urlencoded": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "title": {
+                        "type": "string"
+                      },
+                      "description": {
+                        "type": "string"
+                      },
+                      "status": {
+                        "type": "number"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {}
+                }
+              },
+              "403": {
+                "description": "You don't have the permission"
+              },
+              "404": {
+                "description": "Video not found"
+              },
+              "400": {
+                "description": "Error updating video"
+              }
+            }
+          }
+    },
+    "/api/videos/delete/:id": {
+      "delete": {
+        "tags": [
+              "Videos"
+            ],
+            "summary": "Delete a video",
+            "security": [
+              {
+                "bearerAuth": []
+              }
+            ],
+            "parameters": [
+              {
+                "name": "id",
+                "in": "path",
+                "required": true,
+                "schema": {
+                  "type": "string"
+                }
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "Successful response",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "message": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "403": {
+                "description": "You don't have the permission"
+              },
+              "404": {
+                "description": "Video not found"
+              },
+              "500": {
+                "description": "Error deleting video"
           }
         }
       }
