@@ -3,7 +3,8 @@ const multer = require("multer");
 const upload = multer({
   dest: "DEST/",
   limits: {
-    fileSize: 37500000, // set the maximum file size in bytes
+    fileSize: 37500000, // 30 Mo
+    // set the maximum file size in bytes
   },
 });
 
