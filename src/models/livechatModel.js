@@ -4,12 +4,12 @@ const Schema = mongoose.Schema;
 const LivechatSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Users',
     required: true,
   },
   videoId: {
     type: Schema.Types.ObjectId,
-    ref: 'Video',
+    ref: 'Videos',
     required: true,
   },
   content: {

@@ -1,18 +1,23 @@
 const multer = require("multer");
 
-const upload = multer({
-  dest: "DEST/",
-  limits: {
-    fileSize: 37500000, // 30 Mo
-    // set the maximum file size in bytes
-  },
-});
+const destLocal = process.env.DEST_LOCAL;
+const destServer = process.env.DEST_SERVER;
+
+// Configurer l'upload de miniatures
+const thumbnailUpload = multer({
+  dest: destLocal + "/thumbnails",
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10 Mo en octets
+}).single("thumbnail");
+
+// Configurer l'upload de vidéos
+const videoUpload = multer({
+  dest: destLocal + "/videos",
+  limits: { fileSize: 70 * 1024 * 1024 }, // 70 Mo en octets
+}).single("video");
 
 const fileUpload = (req, res, next) => {
-  upload.fields([
-    { name: "thumbnail", maxCount: 1 },
-    { name: "video", maxCount: 1 },
-  ])(req, res, (err) => {
+  // upload the thumbnail first
+  thumbnailUpload(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       // Multer error occurred, handle it
       return next(err);
@@ -21,24 +26,27 @@ const fileUpload = (req, res, next) => {
       return next(err);
     }
 
-    // access the uploaded files
-    const thumbnail = req.files["thumbnail"][0];
-    const video = req.files["video"][0];
-
-    // check the file sizes
-    if (
-      thumbnail.size > upload.limits.fileSize ||
-      video.size > upload.limits.fileSize
-    ) {
-      // handle the error
-      return res.status(400).send("File size exceeds the maximum limit");
+    // access the uploaded thumbnail
+    const thumbnail = req.file;
+  });
+  // upload the video next
+  videoUpload(req, res, (err) => {
+    if (err instanceof multer.MulterError) {
+      // Multer error occurred, handle it
+      return next(err);
+    } else if (err) {
+      // Other error occurred, handle it
+      return next(err);
     }
+
+    // access the uploaded video
+    const video = req.file;
 
     // handle the uploaded files as needed
     // ...
-
-    next();
   });
+
+  next();
 };
 
 module.exports = fileUpload;

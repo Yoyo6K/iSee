@@ -10,12 +10,13 @@ const {
   updateVideo,
   deleteVideo,
 } = require("../controllers/videoController");
+const fileUpload = require("../middleware/fileUpload");
 
 router.get("/", getAllVideos);
 
 router.get("/:id", getVideo);
 
-router.post("/", isAuth, uploadVideo);
+router.post("/", isAuth, fileUpload, uploadVideo);
 
 router.put("/:id", isAuth, updateVideo);
 
