@@ -16,10 +16,11 @@ const videoModel = new Schema({
   },
   video_path: {
     type: String,
-    required: true,
+    required: false,
   },
   thumbnail_path: {
     type: String,
+    required: false,
   },
   views: {
     type: Number,
@@ -31,7 +32,7 @@ const videoModel = new Schema({
     required: true,
     default: "Public",
   },
-  upload_date: {
+  uploadAt: {
     type: Date,
     default: Date.now,
   },

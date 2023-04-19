@@ -16,7 +16,7 @@ router.get("/", getAllVideos);
 
 router.get("/:id", getVideo);
 
-router.post("/", isAuth, fileUpload, uploadVideo);
+router.post("/upload", isAuth, uploadVideo);
 
 router.put("/:id", isAuth, updateVideo);
 
