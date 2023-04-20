@@ -32,6 +32,11 @@ db.on("error", (error) => {console.error(error);});
 
 const app = express();
 
+// Setup the WebSocket server using Socket.io
+const http = require('http');
+const server = http.createServer(app);
+const io = require('socket.io')(server);
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -43,6 +48,10 @@ app.use('/api/comments', commentRoutes);
 // app.use('/api/livechat', livechatRoutes);
 
 
+
+
+
+
 /**
  * * SWAGGER
  */
@@ -52,8 +61,20 @@ const swaggerUi = require('swagger-ui-express'),
 
 app.use('/swagger',swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+// Live Chat route
+app.get('/api/livechat', (req, res) => {
+  // Setup the WebSocket endpoint for livechat
+  io.on("connection", (socket) => {
+    console.log("a user connected");
+    socket.on("chat message", (msg) => {
+      console.log("message: " + msg);
+      io.emit("chat message", msg);
+    });
+  });
+  res.sendFile(__dirname + "/public/livechat.html");
+});
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(chalk.magenta(`Server running on :`, chalk.yellow.underline("http://localhost:" + port) ));
   console.log(chalk.cyan('Swagger on :', chalk.yellow.underline('http://localhost:3000/swagger')));
 });
