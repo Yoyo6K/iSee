@@ -1,39 +1,37 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="UTF-8">
+  <head>
     <title>Live Chat</title>
-</head>
-
-<body>
-    <div id="chat-container">
-        <div id="chat-messages"></div>
-        <form id="chat-form">
-            <input type="text" id="chat-input" placeholder="Type your message...">
-            <button type="submit">Send</button>
-        </form>
-    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script>
-        const socket = io();
-        const chatForm = document.querySelector('#chat-form');
-        const chatInput = document.querySelector('#chat-input');
-        const chatMessages = document.querySelector('#chat-messages');
+      // Connect to the WebSocket server
+      const socket = io();
+      // Join the video chat room
+      const urlParams = new URLSearchParams(window.location.search);
+      const videoId = urlParams.get("videoId");
+      // Join the video chat room
+      socket.emit("join video chat", videoId);
 
-        chatForm.addEventListener('submit', e => {
-            e.preventDefault();
-            const message = chatInput.value;
-            socket.emit('chat message', message);
-            chatInput.value = '';
-        });
+      // Listen for chat messages
+      socket.on("chat message", function (message) {
+        const messageNode = document.createElement("li");
+        messageNode.innerText = message;
+        document.getElementById("messages").appendChild(messageNode);
+      });
 
-        socket.on('chat message', message => {
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            chatMessages.appendChild(messageElement);
-        });
+      // Send chat messages
+      function sendMessage() {
+        const message = document.getElementById("message").value;
+        socket.emit("chat message", { videoId: videoId, message: message });
+        document.getElementById("message").value = "";
+      }
     </script>
-</body>
+  </head>
 
+  <body>
+    <h1>Live Chat</h1>
+    <ul id="messages"></ul>
+    <input type="text" id="message" />
+    <button onclick="sendMessage()">Send</button>
+  </body>
 </html>
