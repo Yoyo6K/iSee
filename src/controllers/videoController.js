@@ -35,6 +35,8 @@ exports.uploadVideo = async (req, res) => {
     // console.log(thumbnail);
     // console.log(video);
 
+    console.log("title : "+title)
+    console.log("req", req);
 
     const newVideo = new Video({
       ownerId: req.user._id, ...req.body
