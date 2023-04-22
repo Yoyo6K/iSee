@@ -61,7 +61,10 @@ const swaggerUi = require("swagger-ui-express"),
 
 app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
-//livechat
+/**
+ * * LiveChat
+ */
+
 app.get("/api/livechat/:videoId", (req, res) => {
   res.sendFile(__dirname + "/public/livechat.html");
 });
@@ -82,19 +85,13 @@ io.on("connection", (socket) => {
   });
 });
 
+/**
+ * * Listening
+ */
+
 server.listen(port, () => {
-  console.log(
-    chalk.magenta(
-      `Server running on :`,
-      chalk.yellow.underline("http://localhost:" + port)
-    )
-  );
-  console.log(
-    chalk.cyan(
-      "Swagger on :",
-      chalk.yellow.underline("http://localhost:3000/swagger")
-    )
-  );
+  console.log(chalk.magenta(`Server running on :`,chalk.yellow.underline("http://localhost:" + port)));
+  console.log(chalk.cyan("Swagger on :",chalk.yellow.underline("http://localhost:3000/swagger")));
 });
 
 // console.log(process.env);

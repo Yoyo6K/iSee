@@ -2,8 +2,6 @@ const express = require("express");
 const router = express.Router();
 const isAuth = require("../middleware/isAuth");
 const isAdmin = require("../middleware/isAdmin");
-const multer = require("multer");
-const upload = multer();
 
 const {
   getAllVideos,
@@ -18,11 +16,7 @@ router.get("/", getAllVideos);
 
 router.get("/:id", getVideo);
 
-router.post(
-  "/upload",
-  isAuth,
-  upload.fields([{ name: "video" }, { name: "image" }]),uploadVideo
-);
+router.post("/upload",isAuth, fileUpload(),uploadVideo);
 
 router.put("/:id", isAuth, updateVideo);
 
