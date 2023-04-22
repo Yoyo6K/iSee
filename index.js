@@ -39,11 +39,13 @@ const app = express();
 // Setup the WebSocket server using Socket.io
 const http = require("http");
 const server = http.createServer(app);
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, { cors: { origin: "*" } });
+
+app.use(cors());
+
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json({ type: "application/json" }));
-app.use(cors());
+app.use(bodyParser.json());
 
 app.use("/api/users", userRoutes);
 app.use("/api/videos", videoRoutes);
@@ -66,7 +68,6 @@ app.get("/api/livechat/:videoId", (req, res) => {
 
 // Middleware pour les connexions de socket
 io.on("connection", (socket) => {
-  console.log("a user connected");
 
   // Rejoindre la salle de chat vidéo correspondante
   socket.on("join video chat", (videoId) => {

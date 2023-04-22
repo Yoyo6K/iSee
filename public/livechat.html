@@ -5,10 +5,12 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
       // Connect to the WebSocket server
-      const socket = io();
+      const socket = io('http://localhost:3000');
       // Join the video chat room
       const urlParams = new URLSearchParams(window.location.search);
       const videoId = urlParams.get("videoId");
+
+      console.log("video id : ",videoId);
       // Join the video chat room
       socket.emit("join video chat", videoId);
 
