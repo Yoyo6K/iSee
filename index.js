@@ -81,7 +81,14 @@ io.on("connection", (socket) => {
   // Écouter les messages de chat
   socket.on("chat message", (data) => {
     console.log(`message received for video ${data.videoId}: ${data.message}`);
-    io.to(`video-${data.videoId}`).emit("chat message", data.message);
+    const {message,timestamp,author} = data
+    console.log("timestamp",timestamp,author)
+    const newMessage = {
+      content : message,
+      timestamp : timestamp,
+      author: author
+    }
+    io.to(`video-${data.videoId}`).emit("chat message", newMessage);
   });
 });
 

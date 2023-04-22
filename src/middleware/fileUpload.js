@@ -45,38 +45,38 @@ const videoUpload = multer({
   },
 }).single("video");
 
-const fileUpload = (req, res, next) => {
-  // upload the thumbnail first
-  thumbnailUpload(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      // Multer error occurred, handle it
-      return next(err);
-    } else if (err) {
-      // Other error occurred, handle it
-      return next(err);
-    }
+// const fileUpload = (req, res, next) => {
+//   // upload the thumbnail first
+//   thumbnailUpload(req, res, (err) => {
+//     if (err instanceof multer.MulterError) {
+//       // Multer error occurred, handle it
+//       return next(err);
+//     } else if (err) {
+//       // Other error occurred, handle it
+//       return next(err);
+//     }
 
-    // access the uploaded thumbnail
-    const thumbnail = req.file;
-  });
-  // upload the video next
-  videoUpload(req, res, (err) => {
-    if (err instanceof multer.MulterError) {
-      // Multer error occurred, handle it
-      return next(err);
-    } else if (err) {
-      // Other error occurred, handle it
-      return next(err);
-    }
+//     // access the uploaded thumbnail
+//     const thumbnail = req.file;
+//   }) ;
+//   // upload the video next
+//   videoUpload(req, res, (err) => {
+//     if (err instanceof multer.MulterError) {
+//       // Multer error occurred, handle it
+//       return next(err);
+//     } else if (err) {
+//       // Other error occurred, handle it
+//       return next(err);
+//     }
 
-    // access the uploaded video
-    const video = req.file;
+//     // access the uploaded video
+//     const video = req.file;
 
-    // handle the uploaded files as needed
-    // ...
-  });
+//     // handle the uploaded files as needed
+//     // ...
+//   });
 
-  next();
-};
+//   next();
+// };
 
 module.exports = fileUpload;
