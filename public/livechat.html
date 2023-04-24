@@ -2,10 +2,10 @@
 <html>
   <head>
     <title>Live Chat</title>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://iseevision.fr/test/socket.io/socket.io.js"></script>
     <script>
       // Connect to the WebSocket server
-      const socket = io('http://localhost:3000');
+      const socket = io('https://iseevision.fr/test');
       // Join the video chat room
       const urlParams = new URLSearchParams(window.location.search);
       const videoId = urlParams.get("videoId");
