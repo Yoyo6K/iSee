@@ -6,9 +6,9 @@ const destServer = process.env.DEST_SERVER;
 const storage = multer.diskStorage({
   destinations:  (req, file, cb) => {
     if (file.fieldname === "thumbnails")
-      cb(null, destLocalStorage + "/thumbnails");
+      cb(null, destLocal + "/thumbnails");
     else if (file.fieldname === "video")
-      cb(null, destLocalStorage + "/videos");
+      cb(null, destLocal + "/videos");
     else cb(null, false);
       return cb(new Error("File not allowed"));
   }
