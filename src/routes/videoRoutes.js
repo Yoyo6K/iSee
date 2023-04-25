@@ -10,13 +10,21 @@ const {
   updateVideo,
   deleteVideo,
 } = require("../controllers/videoController");
-//const fileUpload = require("../middleware/fileUpload");
+const fileUpload = require("../middleware/fileUpload");
 
 router.get("/", getAllVideos);
 
 router.get("/:id", getVideo);
 
-router.post("/upload",isAuth/*, fileUpload()*/,uploadVideo);
+router.post(
+  "/upload",
+  isAuth,
+  fileUpload.fields([
+    { name: "video", maxCount: 1 },
+    { name: "thumbnails", maxCount: 1 },
+  ]),
+  uploadVideo
+);
 
 router.put("/:id", isAuth, updateVideo);
 
