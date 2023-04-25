@@ -21,7 +21,7 @@ router.post(
   isAuth,
   fileUpload.fields([
     { name: "video", maxCount: 1 },
-    { name: "thumbnails", maxCount: 1 },
+    { name: "thumbnail", maxCount: 1 },
   ]),
   uploadVideo
 );

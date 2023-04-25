@@ -4,20 +4,22 @@ const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
 
 const storage = multer.diskStorage({
-  destinations:  (req, file, cb) => {
-    if (file.fieldname === "thumbnails")
-      cb(null, destLocal + "/thumbnails");
-    else if (file.fieldname === "video")
+  destination:  (req, file, cb) => {
+    if (file.fieldname == "thumbnail")
+      cb(null, destLocal + "/thumbnails");  
+    else if (file.fieldname == "video")
       cb(null, destLocal + "/videos");
-    else cb(null, false);
+    else{
+      cb(null, false);
       return cb(new Error("File not allowed"));
+    } 
+
   }
 });
 
 
 const fileFilter =  (req,file,cb) => {
-  console.log("file : " + file.fieldname);
-if (file.fieldname === 'thumbnails') {
+if (file.fieldname === 'thumbnail') {
   if (
     file.mimetype === "image/png" ||
     file.mimetype === "image/jpg" ||
