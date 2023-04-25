@@ -1,10 +1,15 @@
 const multer = require("multer");
+const path = require("path");
+const fs = require("fs");
 
 const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
 
 const storage = multer.diskStorage({
   destination:  (req, file, cb) => {
+    fs.mkdirSync(destLocal + "/thumbnails", { recursive: true });
+    fs.mkdirSync(destLocal + "/videos", { recursive: true });
+
     if (file.fieldname == "thumbnail")
       cb(null, destLocal + "/thumbnails");  
     else if (file.fieldname == "video")
@@ -14,6 +19,12 @@ const storage = multer.diskStorage({
       return cb(new Error("File not allowed"));
     } 
 
+  },
+  filename: (req,file,cb) => { 
+    cb(
+      null,
+      Date.now() + "_" + req.user._id + path.extname(file.originalname)
+    );
   }
 });
 
