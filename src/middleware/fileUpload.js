@@ -10,13 +10,13 @@ const uuid = require("uuid").v4().replaceAll('-', '')
 
 const storage = multer.diskStorage({
   destination:  (req, file, cb) => {
-    fs.mkdirSync(destLocal + "/thumbnails", { recursive: true });
-    fs.mkdirSync(destLocal + "/videos", { recursive: true });
+    fs.mkdirSync(destServer + "/thumbnails", { recursive: true });
+    fs.mkdirSync(destServer + "/videos", { recursive: true });
 
     if (file.fieldname == "thumbnail")
-      cb(null, destLocal + "/thumbnails");
+      cb(null, destServer + "/thumbnails");
     else if (file.fieldname == "video")
-      cb(null, destLocal + "/videos");
+      cb(null, destServer + "/videos");
     else{
       cb(null, false);
       return cb(new Error("File not allowed"));
