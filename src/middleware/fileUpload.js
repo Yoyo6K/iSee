@@ -2,8 +2,11 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 
+
 const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
+
+const uuid = require("uuid").v4().replaceAll('-', '')
 
 const storage = multer.diskStorage({
   destination:  (req, file, cb) => {
@@ -11,20 +14,20 @@ const storage = multer.diskStorage({
     fs.mkdirSync(destLocal + "/videos", { recursive: true });
 
     if (file.fieldname == "thumbnail")
-      cb(null, destLocal + "/thumbnails");  
+      cb(null, destLocal + "/thumbnails");
     else if (file.fieldname == "video")
       cb(null, destLocal + "/videos");
     else{
       cb(null, false);
       return cb(new Error("File not allowed"));
-    } 
+    }
 
   },
-  filename: (req,file,cb) => { 
-    cb(
-      null,
-      Date.now() + "_" + req.user._id + path.extname(file.originalname)
-    );
+  filename: (req,file,cb) => {
+
+    req.uploadId = uuid
+
+    cb(null, req.uploadId + path.extname(file.originalname));
   }
 });
 

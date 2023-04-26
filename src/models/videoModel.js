@@ -2,6 +2,10 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const videoModel = new Schema({
+  _id: {
+    type: String,
+    required: true,
+  },
   ownerId: {
     type: Schema.Types.ObjectId,
     ref: 'Users',
@@ -14,14 +18,6 @@ const videoModel = new Schema({
   description: {
     type: String,
   },
-  video_path: {
-    type: String,
-    required: false,
-  },
-  thumbnail_path: {
-    type: String,
-    required: false,
-  },
   views: {
     type: Number,
     default: 0,
@@ -31,6 +27,14 @@ const videoModel = new Schema({
     enum: ["Private", "Public", "Hide"],
     required: true,
     default: "Public",
+  },
+  thumbnail_path: {
+    type: String,
+    required: false,
+  },
+  video_path: {
+    type: String,
+    required: false,
   },
   uploadAt: {
     type: Date,

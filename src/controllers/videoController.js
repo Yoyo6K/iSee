@@ -28,17 +28,22 @@ exports.getVideo = async (req, res) => {
 exports.uploadVideo = async (req, res) => {
   try {
 
-    const { title, description, state } = req.body;
-    const { videoPath, thumbnailPath } = "";
+    const uploadId = req.uploadId;
 
-    // console.log(req.file);
-    // console.log(thumbnail);
-    // console.log(video);
+    const videoPath = JSON.stringify(req.files["video"][0].path)
+    const thumbnailPath = JSON.stringify(req.files["thumbnail"][0].path)
+
+    console.log("FILE : " + JSON.stringify(req.files["thumbnail"][0].path));
+
 
 
 
     const newVideo = new Video({
-      ownerId: req.user._id, ...req.body
+      _id: uploadId.toString(),
+      ownerId: req.user._id,
+      thumbnail_path: thumbnailPath,
+      video_path: videoPath,
+      ...req.body
     });
 
     const savedVideo = await newVideo.save();
