@@ -489,7 +489,11 @@
                   "status": {
                     "type": "number"
                   },
-                  "file": {
+                  "thumbnail": {
+                    "type": "string",
+                    "format": "binary"
+                  },
+                  "video": {
                     "type": "string",
                     "format": "binary"
                   }
