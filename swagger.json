@@ -225,7 +225,7 @@
         }
       }
     },
-    "/api/comments/video{videoId}": {
+    "/api/comments/video/{videoId}": {
       "get": {
         "tags": [
           "Comments"
