@@ -70,8 +70,6 @@ exports.loginUsers = async (req, res) => {
             process.env.JWT_SECRET,
             {
               expiresIn: "5h",
-              audience: 'https://iseevision.fr/api',
-              issuer: 'https://iseevision.fr/',
               algorithm: 'RS256',
               subject: user._id.toString()
             }
