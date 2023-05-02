@@ -1,7 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
+const crypto = require("crypto");
 const User = require("../models/userModel");
 
 const {
@@ -35,24 +35,29 @@ exports.loginUsers = async (req, res) => {
   const { error } = validateLogin(req.body);
 
   if (error) {
-    console.log(error);
-    return res.send(error.details);
+    return res.status(400).send(error.details);
   }
 
   // Recherchez l'utilisateur dans la base de données en utilisant l'e-mail envoyé dans la requête
-  User.findOne({ email: req.body.email }, (err, user) => {
+  User.findOne({ email: req.body.email }, async (err, user) => {
+    try {
+
+    
     if (err) {
       res.status(500).send(err);
     } else if (!user) {
       res.status(401).send({ message: "Incorrect email or password" });
     } else {
       // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
-      bcrypt.compare(req.body.password, user.password, (err, result) => {
+      bcrypt.compare(req.body.password, user.password, async (err, result) => {
         if (err) {
           res.status(500).send(err);
         } else if (!result) {
           res.status(401).send({ message: "Incorrect email or password" });
         } else {
+          /* On créer le token CSRF */
+          const xsrfToken = crypto.randomBytes(64).toString("hex");
+
           // Générez un jeton JWT pour l'utilisateur
           const token = jwt.sign(
             {
@@ -60,15 +65,43 @@ exports.loginUsers = async (req, res) => {
               username: user.username,
               email: user.email,
               isAdmin: user.isAdmin,
+              xsrfToken: xsrfToken,
             },
             process.env.JWT_SECRET,
-            { expiresIn: "5h" }
+            {
+              expiresIn: "5h",
+              audience: 'https://iseevision.fr/api',
+              issuer: 'https://iseevision.fr/',
+              algorithm: 'RS256',
+              subject: user._id.toString()
+            }
           );
-          res.send({ token });
+
+          const refreshToken = crypto.randomBytes(128).toString('base64');
+
+          await User.findByIdAndUpdate(user._id, {
+            token: refreshToken,
+            expiresAt: Date.now() + 5 * 60 * 60 * 1000,
+          });
+
+
+          res.cookie('access_token', token, {
+            history: true,
+            secure: true,
+            maxAge : 5 * 60 * 60 * 1000,
+            path: '/token',
+          })
+
+          res.send({ xsrfToken });
         }
       });
     }
+  }
+  catch (err) {
+   return res.status(500).send("Internal Server Error")
+  }
   });
+
 };
 
 exports.registerUsers = async (req, res) => {
@@ -165,7 +198,6 @@ exports.updateUsers = async (req, res) => {
         res.status(200).send(user);
       }
     });
-
   } catch (error) {
     console.log(error);
     res.status(400).json({ error });
