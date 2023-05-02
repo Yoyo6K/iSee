@@ -13,7 +13,7 @@ const {
 
 router.get("/video/:videoId", getCommentsByVideoId);
 
-router.post("/", isAuth, addComment);
+router.post("/add", isAuth, addComment);
 
 router.post("/like/:commentId", isAuth, likeComment);
 
