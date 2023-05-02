@@ -70,8 +70,8 @@ exports.loginUsers = async (req, res) => {
             process.env.JWT_SECRET,
             {
               expiresIn: "5h",
-              algorithm: 'RS256',
-              subject: user._id.toString()
+              algorithm: "HS256",
+              subject: user._id.toString(),
             }
           );
 
