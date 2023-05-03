@@ -28,18 +28,18 @@ exports.getVideo = async (req, res) => {
 exports.uploadVideo = async (req, res) => {
   try {
 
-    const uploadId = req.uploadId;
+    const uploadIdSTR = req.uploadId;
 
     const videoPath = JSON.stringify(req.files["video"][0].path)
     const thumbnailPath = JSON.stringify(req.files["thumbnail"][0].path)
 
     console.log("FILE : " + JSON.stringify(req.files["thumbnail"][0].path));
 
-
+    const uploadId = mongoose.Types.ObjectId(uploadIdSTR)
 
 
     const newVideo = new Video({
-      _id: uploadId.toString(),
+      _id: uploadId,
       ownerId: req.user._id,
       thumbnail_path: thumbnailPath,
       video_path: videoPath,
