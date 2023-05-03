@@ -76,20 +76,26 @@ exports.loginUsers = async (req, res) => {
             }
           );
 
-          const refreshToken = crypto.randomBytes(128).toString('base64');
+          const refreshToken = crypto.randomBytes(128).toString("base64");
 
           await User.findByIdAndUpdate(user._id, {
             token: refreshToken,
             expiresAt: Date.now() + 5 * 60 * 60 * 1000,
           });
 
-
-          res.cookie('access_token', token, {
+          res.cookie("access_token", token, {
             history: true,
             secure: true,
-            maxAge : 5 * 60 * 60 * 1000,
-            path: '/token',
-          })
+            maxAge: 5 * 60 * 60 * 1000,
+          });
+
+          /* On créer le cookie contenant le refresh token */
+          res.cookie("refresh_token", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            maxAge: 5 * 60 * 60 * 1000,
+            path: "/token",
+          });
 
           res.send({ xsrfToken });
         }
