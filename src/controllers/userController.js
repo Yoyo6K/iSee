@@ -35,7 +35,7 @@ exports.loginUsers = async (req, res) => {
   const { error } = validateLogin(req.body);
 
   if (error) {
-    return res.status(400).send(error.details);
+    return res.status(400).send(error.details[0].message);
   }
 
   // Recherchez l'utilisateur dans la base de données en utilisant l'e-mail envoyé dans la requête
