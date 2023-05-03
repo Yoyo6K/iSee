@@ -2,38 +2,48 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
 isAuth = async (req, res, next) => {
-  try {
+try {
+    const { cookies, headers } = req;
 
-    const {cookies, headers} = req;
-
-    if(!cookies || cookies.access_token)
-    {
-      return res.status(400).send("Missing token in cookies");
+    /* On vérifie que le JWT est présent dans les cookies de la requête */
+    if (!cookies || !cookies.access_token) {
+      return res.status(401).json({ message: 'Missing token in cookie' });
     }
 
-    const accessToken = cokiie.accessToken;
+    const accessToken = cookies.access_token;
 
-    // On verifie que le token CRSF est présent dans les en-têtes de la requête
-
-    if(!headers || headers['x-xsrf-token'])
-    {
-      return res.status(401).send("Missing xsrf token in headers");
+    /* On vérifie que le token CSRF est présent dans les en-têtes de la requête */
+    if (!headers || !headers['x-xsrf-token']) {
+      return res.status(401).json({ message: 'Missing XSRF token in headers' });
     }
+
     const xsrfToken = headers['x-xsrf-token'];
 
-    const decodedToken = jwt.verify(accessToken, process.env.JWT_SECRET, {
-      algorithms: 'RS256'
+    /* On vérifie et décode le JWT à l'aide du secret et de l'algorithme utilisé pour le générer */
+    const decodedToken = jwt.verify(accessToken, secret, {
+      algorithms: algorithm
     });
 
+    /* On vérifie que le token CSRF correspond à celui présent dans le JWT  */
     if (xsrfToken !== decodedToken.xsrfToken) {
-      return res.status(401).send("Invalid xsrf token");
+      return res.status(401).json({ message: 'Bad xsrf token' });
+    }
+
+    /* On vérifie que l'utilisateur existe bien dans notre base de données */
+    const userId = decodedToken.sub;
+    const user = await User.findOne({ where: { id: userId } });
+    if (!user) {
+      return res.status(401).json({ message: `User ${userId} not exists` });
+    }
+
+    /* On passe l'utilisateur dans notre requête afin que celui-ci soit disponible pour les prochains middlewares */
+    req.user = user;
+
+    /* On appelle le prochain middleware */
+    return next();
+  } catch (err) {
+    return res.status(500).json({ message: 'Internal error' });
   }
-          const user = await User.findById(decodedToken.sub);
-        if (!user) {
-        return res.status(403).send("You dont have the permission");
-      }
-     req.user = user;
-     next();
 }
   // console.log(req.headers.authorization);
 
@@ -53,10 +63,10 @@ isAuth = async (req, res, next) => {
   //     req.user = user;
   //     next();
     //}
-     catch (error) {
-      return res.status(498).send("Token Invalid");
-    }
-  };
+  //    catch (error) {
+  //     return res.status(498).send("Token Invalid");
+  //   }
+  // };
 //};
 
 module.exports = isAuth;
