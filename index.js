@@ -51,7 +51,7 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: "*",
+    origin: ["http://localhost:3000", "https://iseevision.fr"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     optionsSuccessStatus: 204,
