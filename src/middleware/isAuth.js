@@ -4,7 +4,7 @@ const jwt = require("jsonwebtoken");
 isAuth = async (req, res, next) => {
 try {
     const { cookies, headers } = req;
-
+    console.log(cookies);
     /* On vérifie que le JWT est présent dans les cookies de la requête */
     if (!cookies || !cookies.access_token) {
       return res.status(401).json({ message: 'Missing token in cookie' });

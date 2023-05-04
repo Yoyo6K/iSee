@@ -15,6 +15,11 @@
       "bearerAuth": {
         "type": "http",
         "scheme": "bearer"
+      },
+      "XSRF-Token": {
+        "type": "apiKey",
+        "name": "X-XSRF-Token",
+        "in": "header"
       }
     }
   },
@@ -262,7 +267,7 @@
         "summary": "Add a comment",
         "security": [
           {
-            "bearerAuth": []
+             "XSRF-Token": []
           }
         ],
         "requestBody": {
