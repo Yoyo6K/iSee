@@ -17,6 +17,11 @@
         "type": "apiKey",
         "name": "X-XSRF-Token",
         "in": "header"
+      },
+      "cookieAuth": {
+        "type": "apiKey",
+        "name": "access_token",
+        "in": "cookie"
       }
     }
   },
@@ -57,6 +62,9 @@
         "security": [
           {
             "XSRF-Token": []
+          },
+          {
+            "cookieAuth": []
           }
         ],
         "responses": {
@@ -265,6 +273,9 @@
         "security": [
           {
              "XSRF-Token": []
+          },
+          {
+            "cookieAuth": []
           }
         ],
         "requestBody": {
