@@ -12,10 +12,7 @@
   ],
   "components": {
     "securitySchemes": {
-      "bearerAuth": {
-        "type": "http",
-        "scheme": "bearer"
-      },
+
       "XSRF-Token": {
         "type": "apiKey",
         "name": "X-XSRF-Token",
@@ -32,7 +29,7 @@
         "summary": "List of all Users",
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "responses": {
@@ -59,7 +56,7 @@
         "summary": "List the profile of the user id",
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "responses": {
@@ -182,7 +179,7 @@
         },
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "responses": {
@@ -217,7 +214,7 @@
         },
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "responses": {
@@ -308,7 +305,7 @@
         "summary": "Like a comment",
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "parameters": [
@@ -342,7 +339,7 @@
         "summary": "Dislike a comment",
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "parameters": [
@@ -376,7 +373,7 @@
         "summary": "Delete a comment",
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "parameters": [
@@ -476,7 +473,7 @@
         "summary": "Upload a video",
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "requestBody": {
@@ -528,7 +525,7 @@
         "summary": "Update a video",
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "parameters": [
@@ -588,7 +585,7 @@
         "summary": "Delete a video",
         "security": [
           {
-            "bearerAuth": []
+            "XSRF-Token": []
           }
         ],
         "parameters": [
