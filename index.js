@@ -14,7 +14,7 @@ const commentRoutes = require("./src/routes/commentRoutes");
 
 const dbConnect = require("./config/connectMongo");
 const { Server } = require("socket.io");
-
+const helmet = require("helmet");
 /**
  * * MONGO
  */
@@ -44,11 +44,11 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: ["http://localhost:3000", "https://iseevision.fr"],
     methods: ["GET", "POST"],
   },
 });
-
+app.use(helmet());
 app.use(
   cors({
     origin: ["http://localhost:3000", "https://iseevision.fr"],
@@ -61,6 +61,7 @@ app.use(
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
 
 app.use("/api/users", userRoutes);
 app.use("/api/videos", videoRoutes);
