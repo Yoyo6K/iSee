@@ -6,17 +6,17 @@ const fs = require("fs");
 const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
 
-const uuid = require("uuid").v4().replaceAll('-', '')
+const uuid = require("uuid").v4().replace(/-/g, "");
 
 const storage = multer.diskStorage({
   destination:  (req, file, cb) => {
-    fs.mkdirSync(destServer + "/thumbnails", { recursive: true });
-    fs.mkdirSync(destServer + "/videos", { recursive: true });
+    fs.mkdirSync(destLocal + "/thumbnails", { recursive: true });
+    fs.mkdirSync(destLocal + "/videos", { recursive: true });
 
     if (file.fieldname == "thumbnail")
-      cb(null, destServer + "/thumbnails");
+      cb(null, destLocal + "/thumbnails");
     else if (file.fieldname == "video")
-      cb(null, destServer + "/videos");
+      cb(null, destLocal + "/videos");
     else{
       cb(null, false);
       return cb(new Error("File not allowed"));
