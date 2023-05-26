@@ -1,12 +1,11 @@
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
-
+const mongoose = require("mongoose");
 
 const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
 
-const uuid = require("uuid").v4().replace(/-/g, "");
 
 const storage = multer.diskStorage({
   destination:  (req, file, cb) => {
@@ -24,10 +23,10 @@ const storage = multer.diskStorage({
 
   },
   filename: (req,file,cb) => {
+    req.locals = req.locals || {}; // Créer l'objet req.locals s'il n'existe pas
+    req.locals.uploadId = req.locals.uploadId || mongoose.Types.ObjectId(); // Générer l'UUID si nécessaire
 
-    req.uploadId = uuid
-
-    cb(null, req.uploadId + path.extname(file.originalname));
+    cb(null, req.locals.uploadId + path.extname(file.originalname));
   }
 });
 
