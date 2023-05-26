@@ -15,6 +15,7 @@ const commentRoutes = require("./src/routes/commentRoutes");
 const dbConnect = require("./config/connectMongo");
 const { Server } = require("socket.io");
 const helmet = require("helmet");
+const cookieParser = require("cookie-parser");
 /**
  * * MONGO
  */
@@ -37,6 +38,11 @@ db.on("error", (error) => {
 
 const app = express();
 
+//protection fail xss
+app.use(helmet());
+
+app.use(cookieParser());
+
 // Setup the WebSocket server using Socket.io
 const http = require("http");
 
@@ -44,14 +50,15 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://iseevision.fr"],
+    origin: [`http://localhost:${port}`, "https://iseevision.fr"],
     methods: ["GET", "POST"],
   },
 });
-app.use(helmet());
+
+
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://iseevision.fr"],
+    origin: [`http://localhost:${port}`, "https://iseevision.fr"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     optionsSuccessStatus: 204,
@@ -62,6 +69,19 @@ app.use(
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+// app.use((req, res, next) => {
+//   res.header(
+//     "Access-Control-Allow-Origin",
+//     "http://localhost:3001, https://iseevision.fr"
+//   );
+//   res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept"
+//   );
+//   res.header("Access-Control-Allow-Credentials", "true");
+//   next();
+// });
 
 app.use("/api/users", userRoutes);
 app.use("/api/videos", videoRoutes);

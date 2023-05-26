@@ -14,8 +14,11 @@ const userModel = new Schema({
     trim: true,
     lowercase: true,
     unique: true,
-    validate: [isEmail , 'Please fill a valid email address'],
-    match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
+    validate: [isEmail, "Please fill a valid email address"],
+    match: [
+      /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+      "Please fill a valid email address",
+    ],
   },
   password: {
     type: String,
@@ -35,6 +38,14 @@ const userModel = new Schema({
     default: Date.now,
   },
   updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+  token: {
+    type: String,
+    default: "",
+  },
+  expiresAt: {
     type: Date,
     default: Date.now,
   },
