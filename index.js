@@ -50,7 +50,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [`http://localhost:${port}`, "https://iseevision.fr"],
+    origin: [`http://localhost:3000`, "https://iseevision.fr"],
     methods: ["GET", "POST"],
   },
 });
@@ -58,7 +58,7 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: [`http://localhost:${port}`, "https://iseevision.fr"],
+    origin: [`http://localhost:3000`, "https://iseevision.fr"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     optionsSuccessStatus: 204,
