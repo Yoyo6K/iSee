@@ -171,7 +171,7 @@ exports.registerUsers = async (req, res) => {
 
            User.findByIdAndUpdate(user._id, {
             token: refreshToken,
-            expiresAt: Date.now() + 20 * 60 * 1000,
+            expiresAt: new Date(Number(new Date()) + (20 * 60 * 1000)),
           });
 
           res.cookie("access_token", token, {
