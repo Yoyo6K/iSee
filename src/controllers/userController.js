@@ -175,14 +175,14 @@ exports.registerUsers = async (req, res) => {
           });
 
           res.cookie("access_token", token, {
-            httpOnly: true,
+           // httpOnly: true,
           //  secure: true,
             maxAge: 60 * 60 * 1000
           });
 
           /* On créer le cookie contenant le refresh token */
           res.cookie("refresh_token", refreshToken, {
-            httpOnly: true,
+            //httpOnly: true,
             // secure: true,
             maxAge: 20 * 60 * 1000,
           });
