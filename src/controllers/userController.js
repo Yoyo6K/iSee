@@ -42,74 +42,78 @@ exports.loginUsers = async (req, res) => {
   // Recherchez l'utilisateur dans la base de données en utilisant l'e-mail envoyé dans la requête
   User.findOne({ email: req.body.email }, async (err, user) => {
     try {
+      if (err) {
+        res.status(500).send(err);
+      } else if (!user) {
+        res.status(401).send({ message: "Incorrect email or password" });
+      } else {
+        // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
+        bcrypt.compare(
+          req.body.password,
+          user.password,
+          async (err, result) => {
+            if (err) {
+              res.status(500).send(err);
+            } else if (!result) {
+              res.status(401).send({ message: "Incorrect email or password" });
+            } else {
+              /* On créer le token CSRF */
+              const xsrfToken = crypto.randomBytes(64).toString("hex");
 
-    
-    if (err) {
-      res.status(500).send(err);
-    } else if (!user) {
-      res.status(401).send({ message: "Incorrect email or password" });
-    } else {
-      // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
-      bcrypt.compare(req.body.password, user.password, async (err, result) => {
-        if (err) {
-          res.status(500).send(err);
-        } else if (!result) {
-          res.status(401).send({ message: "Incorrect email or password" });
-        } else {
-          /* On créer le token CSRF */
-          const xsrfToken = crypto.randomBytes(64).toString("hex");
+              // Générez un jeton JWT pour l'utilisateur
+              const token = jwt.sign(
+                {
+                  id: user._id,
+                  username: user.username,
+                  email: user.email,
+                  isAdmin: user.isAdmin,
+                  xsrfToken: xsrfToken,
+                },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: "1h",
+                  algorithm: "HS256",
+                  subject: user._id.toString(),
+                }
+              );
 
-          // Générez un jeton JWT pour l'utilisateur
-          const token = jwt.sign(
-            {
-              id: user._id,
-              username: user.username,
-              email: user.email,
-              isAdmin: user.isAdmin,
-              xsrfToken: xsrfToken,
-            },
-            process.env.JWT_SECRET,
-            {
-              expiresIn: "1h",
-              algorithm: "HS256",
-              subject: user._id.toString(),
+              const refreshToken = crypto.randomBytes(128).toString("base64");
+
+              await User.findByIdAndUpdate(user._id, {
+                token: refreshToken,
+                expiresAt: Date.now() + 20 * 60 * 1000,
+              });
+
+              res.cookie("access_token", token, {
+                httpOnly: true,
+                //  secure: true,
+                maxAge: 60 * 60 * 1000,
+              });
+
+              /* On créer le cookie contenant le refresh token */
+              res.cookie("refresh_token", refreshToken, {
+                httpOnly: true,
+                secure: true,
+                maxAge: 20 * 60 * 1000,
+              });
+
+              res.send({
+                xsrfToken: xsrfToken,
+                user: {
+                  username: user.username,
+                  email: user.email,
+                  isAdmin: user.isAdmin,
+                },
+              });
             }
-          );
-
-          const refreshToken = crypto.randomBytes(128).toString("base64");
-
-          await User.findByIdAndUpdate(user._id, {
-            token: refreshToken,
-            expiresAt: Date.now() + 20 * 60 * 1000,
-          });
-
-          res.cookie("access_token", token, {
-            httpOnly: true,
-          //  secure: true,
-            maxAge: 60 * 60 * 1000
-          });
-
-          /* On créer le cookie contenant le refresh token */
-          res.cookie("refresh_token", refreshToken, {
-            httpOnly: true,
-            // secure: true,
-            maxAge: 20 * 60 * 1000,
-          });
-
-          res.send({ xsrfToken });
-        }
-      });
+          }
+        );
+      }
+    } catch (err) {
+      return res.status(500).send("Internal Server Error");
     }
-  }
-  catch (err) {
-   return res.status(500).send("Internal Server Error")
-  }
   });
-
 };
-
-
-
 
 exports.registerUsers = async (req, res) => {
   const { error } = validateRegister(req.body);
@@ -138,7 +142,7 @@ exports.registerUsers = async (req, res) => {
             email: req.body.email,
             password: hash,
             isAdmin: req.body.isAdmin,
-            token : null,
+            token: null,
             expiresAt: null,
           });
           // Enregistrez l'utilisateur dans la base de données
@@ -147,47 +151,53 @@ exports.registerUsers = async (req, res) => {
               console.error(err);
               res.status(500).send(err);
             } else {
-               /* On créer le token CSRF */
-          const xsrfToken = crypto.randomBytes(64).toString("hex");
+              /* On créer le token CSRF */
+              const xsrfToken = crypto.randomBytes(64).toString("hex");
 
-          // Générez un jeton JWT pour l'utilisateur
-          const token = jwt.sign(
-            {
-              id: user._id,
-              username: user.username,
-              email: user.email,
-              isAdmin: user.isAdmin,
-              xsrfToken: xsrfToken,
-            },
-            process.env.JWT_SECRET,
-            {
-              expiresIn: "1h",
-              algorithm: "HS256",
-              subject: user._id.toString(),
-            }
-          );
+              // Générez un jeton JWT pour l'utilisateur
+              const token = jwt.sign(
+                {
+                  id: user._id,
+                  username: user.username,
+                  email: user.email,
+                  isAdmin: user.isAdmin,
+                  xsrfToken: xsrfToken,
+                },
+                process.env.JWT_SECRET,
+                {
+                  expiresIn: "1h",
+                  algorithm: "HS256",
+                  subject: user._id.toString(),
+                }
+              );
 
-          const refreshToken = crypto.randomBytes(128).toString("base64");
+              const refreshToken = crypto.randomBytes(128).toString("base64");
 
-           User.findByIdAndUpdate(user._id, {
-            token: refreshToken,
-            expiresAt: new Date(Number(new Date()) + (20 * 60 * 1000)),
-          });
+              User.findByIdAndUpdate(user._id, {
+                token: refreshToken,
+                expiresAt: new Date(Number(new Date()) + 20 * 60 * 1000),
+              });
 
-          res.cookie("access_token", token, {
-            httpOnly: false,
-          //  secure: true,
-            maxAge: 60 * 60 * 1000
-          });
+              res.cookie("access_token", token, {
+                httpOnly: false,
+                secure: true,
+                maxAge: 60 * 60 * 1000,
+              });
 
-          /* On créer le cookie contenant le refresh token */
-          res.cookie("refresh_token", refreshToken, {
-            httpOnly: false,
-            // secure: true,
-            maxAge: 20 * 60 * 1000,
-          });
-
-          res.send({ xsrfToken });
+              /* On créer le cookie contenant le refresh token */
+              res.cookie("refresh_token", refreshToken, {
+                httpOnly: false,
+                secure: true,
+                maxAge: 20 * 60 * 1000,
+              });
+              res.send({
+                xsrfToken: xsrfToken,
+                user: {
+                  username: user.username,
+                  email: user.email,
+                  isAdmin: user.isAdmin,
+                },
+              });
             }
           });
         }

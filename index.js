@@ -11,7 +11,7 @@ const userRoutes = require("./src/routes/userRoutes");
 const videoRoutes = require("./src/routes/videoRoutes");
 const commentRoutes = require("./src/routes/commentRoutes");
 // const livechatRoutes = require('./src/routes/livechatRoutes');
-
+const isAuth = require("./src/middleware/isAuth");
 const dbConnect = require("./config/connectMongo");
 const { Server } = require("socket.io");
 const helmet = require("helmet");
@@ -105,6 +105,13 @@ app.get("/api/livechat/:videoId", (req, res) => {
   res.sendFile(__dirname + "/public/livechat.html");
 });
 
+io.use((socket,next) => {
+
+  socket.user = "Dim"; 
+  next();
+
+})
+
 // Middleware pour les connexions de socket
 io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante
@@ -117,11 +124,11 @@ io.on("connection", (socket) => {
   socket.on("chat message", (data) => {
     console.log(`message received for video ${data.videoId}: ${data.message}`);
     const { message, timestamp, author } = data;
-    console.log("timestamp", timestamp, author);
+    console.log("timestamp", timestamp, socket.user);
     const newMessage = {
       content: message,
       timestamp: timestamp,
-      author: author,
+      author: socket.user,
     };
     io.to(`video-${data.videoId}`).emit("chat message", newMessage);
   });
