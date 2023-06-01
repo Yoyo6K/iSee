@@ -86,7 +86,7 @@ exports.loginUsers = async (req, res) => {
 
               res.cookie("access_token", token, {
                 httpOnly: true,
-                //  secure: true,
+                secure: true,
                 maxAge: 60 * 60 * 1000,
               });
 
@@ -114,6 +114,8 @@ exports.loginUsers = async (req, res) => {
     }
   });
 };
+ 
+
 
 exports.registerUsers = async (req, res) => {
   const { error } = validateRegister(req.body);
@@ -179,7 +181,7 @@ exports.registerUsers = async (req, res) => {
               });
 
               res.cookie("access_token", token, {
-                httpOnly: false,
+                httpOnly: true,
                 secure: true,
                 maxAge: 60 * 60 * 1000,
               });

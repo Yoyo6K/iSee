@@ -15,6 +15,15 @@ const {
 router.get("/getAll", isAuth, isAdmin, getAllUsers);
 
 router.get("/profile", isAuth, profileUsers);
+router.get("/checkIsAuth", isAuth, async (req, res) => {
+  res.status(200).send({
+    user: {
+      username: req.user.username,
+      email: req.user.email,
+      isAdmin: req.user.isAdmin,
+    },
+  });
+});
 
 router.post("/login", loginUsers);
 
