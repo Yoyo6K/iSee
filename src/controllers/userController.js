@@ -96,13 +96,13 @@ exports.loginUsers = async (req, res) => {
                 secure: true,
                 maxAge: 20 * 60 * 1000,
               });
-
               res.send({
                 xsrfToken: xsrfToken,
                 user: {
                   username: user.username,
                   email: user.email,
                   isAdmin: user.isAdmin,
+                  isValidated : user.isValidated,
                 },
               });
             }
@@ -146,6 +146,7 @@ exports.registerUsers = async (req, res) => {
             isAdmin: req.body.isAdmin,
             token: null,
             expiresAt: null,
+            isValidated : false
           });
           // Enregistrez l'utilisateur dans la base de données
           newUser.save((err, user) => {

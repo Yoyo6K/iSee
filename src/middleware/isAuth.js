@@ -63,7 +63,6 @@ try {
             maxAge: 20 * 60 * 1000,
           });
         }
-
       /* On passe l'utilisateur dans notre requête afin que celui-ci soit disponible pour les prochains middlewares */
       req.user = user;
 
