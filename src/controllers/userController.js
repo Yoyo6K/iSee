@@ -99,10 +99,11 @@ exports.loginUsers = async (req, res) => {
               res.send({
                 xsrfToken: xsrfToken,
                 user: {
+                  id: user._id,
                   username: user.username,
                   email: user.email,
                   isAdmin: user.isAdmin,
-                  isValidated : user.isValidated,
+                  isValidated: user.isValidated,
                 },
               });
             }
@@ -115,7 +116,6 @@ exports.loginUsers = async (req, res) => {
   });
 };
  
-
 
 exports.registerUsers = async (req, res) => {
   const { error } = validateRegister(req.body);
@@ -196,6 +196,7 @@ exports.registerUsers = async (req, res) => {
               res.send({
                 xsrfToken: xsrfToken,
                 user: {
+                  id: user._id,
                   username: user.username,
                   email: user.email,
                   isAdmin: user.isAdmin,
@@ -277,4 +278,12 @@ exports.deleteUsers = async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: "You don't have the permission" });
   }
+};
+
+exports.logoutUsers = async (req, res) => {
+
+ res.clearCookie("access_token");
+ res.clearCookie("refresh_token");
+ res.send("Utilisateur déconnecté");
+
 };

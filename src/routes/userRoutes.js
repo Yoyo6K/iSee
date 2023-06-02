@@ -10,6 +10,7 @@ const {
   registerUsers,
   updateUsers,
   deleteUsers,
+  logoutUsers,
 } = require("../controllers/userController");
 
 router.get("/getAll", isAuth, isAdmin, getAllUsers);
@@ -24,6 +25,8 @@ router.get("/checkIsAuth", isAuth, async (req, res) => {
     },
   });
 });
+
+router.post("/logout", logoutUsers)
 
 router.post("/login", loginUsers);
 
