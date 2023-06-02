@@ -3,6 +3,8 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/userModel");
+const nodemailer = require("nodemailer");
+const emailConfig = require("../../config/Mailer");
 
 const {
   validateLogin,
@@ -115,7 +117,6 @@ exports.loginUsers = async (req, res) => {
     }
   });
 };
- 
 
 exports.registerUsers = async (req, res) => {
   const { error } = validateRegister(req.body);
@@ -126,14 +127,14 @@ exports.registerUsers = async (req, res) => {
   }
 
   // Vérifiez si l'adresse e-mail est déjà utilisée
-  User.findOne({ email: req.body.email }, (err, user) => {
+  User.findOne({ email: req.body.email }, async (err, user) => {
     if (err) {
       res.status(500).send(err);
     } else if (user) {
       res.status(400).send({ message: "This email address is already in use" });
     } else {
       // Hash le mot de passe de l'utilisateur
-      bcrypt.hash(req.body.password, 10, (err, hash) => {
+      bcrypt.hash(req.body.password, 10, async (err, hash) => {
         if (err) {
           res.status(500).send(err);
         } else {
@@ -146,55 +147,89 @@ exports.registerUsers = async (req, res) => {
             isAdmin: req.body.isAdmin,
             token: null,
             expiresAt: null,
-            isValidated : false
+            isValidated: false,
           });
           // Enregistrez l'utilisateur dans la base de données
-          newUser.save((err, user) => {
+          newUser.save(async (err, user) => {
             if (err) {
               console.error(err);
               res.status(500).send(err);
             } else {
               /* On créer le token CSRF */
-              const xsrfToken = crypto.randomBytes(64).toString("hex");
+              // const xsrfToken = crypto.randomBytes(64).toString("hex");
 
-              // Générez un jeton JWT pour l'utilisateur
-              const token = jwt.sign(
-                {
-                  id: user._id,
-                  username: user.username,
-                  email: user.email,
-                  isAdmin: user.isAdmin,
-                  xsrfToken: xsrfToken,
+              // // Générez un jeton JWT pour l'utilisateur
+              // const token = jwt.sign(
+              //   {
+              //     id: user._id,
+              //     username: user.username,
+              //     email: user.email,
+              //     isAdmin: user.isAdmin,
+              //     xsrfToken: xsrfToken,
+              //   },
+              //   process.env.JWT_SECRET,
+              //   {
+              //     expiresIn: "1h",
+              //     algorithm: "HS256",
+              //     subject: user._id.toString(),
+              //   }
+              // );
+
+              // const refreshToken = crypto.randomBytes(128).toString("base64");
+
+              // User.findByIdAndUpdate(user._id, {
+              //   token: refreshToken,
+              //   expiresAt: new Date(Number(new Date()) + 20 * 60 * 1000),
+              // });
+
+              // res.cookie("access_token", token, {
+              //   httpOnly: true,
+              //   secure: true,
+              //   maxAge: 60 * 60 * 1000,
+              // });
+
+              // /* On créer le cookie contenant le refresh token */
+              // res.cookie("refresh_token", refreshToken, {
+              //   httpOnly: false,
+              //   secure: true,
+              //   maxAge: 20 * 60 * 1000,
+              // });
+
+              const token = crypto.randomBytes(64).toString("base64");
+
+              await User.findByIdAndUpdate(user._id, {
+                token: token,
+              });
+
+              let transporter = nodemailer.createTransport({
+                host: emailConfig.host,
+                port: emailConfig.port,
+                auth: {
+                  user: emailConfig.auth.user,
+                  pass: emailConfig.auth.pass,
                 },
-                process.env.JWT_SECRET,
-                {
-                  expiresIn: "1h",
-                  algorithm: "HS256",
-                  subject: user._id.toString(),
+              });
+
+              let mailOptions = {
+                from: "no-reply@iseevision.fr",
+                to: req.body.email,
+                subject: "Isee mail verification request",
+                html: emailConfig.getHtml(encodeURIComponent(token)),
+              };
+
+              transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                  console.error("Erreur lors de l'envoi de l'e-mail :", error);
+                } else {
+                  console.log(
+                    "E-mail envoyé avec succès. Réponse du serveur :",
+                    info.response
+                  );
                 }
-              );
-
-              const refreshToken = crypto.randomBytes(128).toString("base64");
-
-              User.findByIdAndUpdate(user._id, {
-                token: refreshToken,
-                expiresAt: new Date(Number(new Date()) + 20 * 60 * 1000),
               });
 
-              res.cookie("access_token", token, {
-                httpOnly: true,
-                secure: true,
-                maxAge: 60 * 60 * 1000,
-              });
-
-              /* On créer le cookie contenant le refresh token */
-              res.cookie("refresh_token", refreshToken, {
-                httpOnly: false,
-                secure: true,
-                maxAge: 20 * 60 * 1000,
-              });
               res.send({
-                xsrfToken: xsrfToken,
+                // xsrfToken: xsrfToken,
                 user: {
                   id: user._id,
                   username: user.username,
@@ -281,9 +316,28 @@ exports.deleteUsers = async (req, res) => {
 };
 
 exports.logoutUsers = async (req, res) => {
+  res.clearCookie("access_token");
+  res.clearCookie("refresh_token");
+  res.send("Utilisateur déconnecté");
+};
 
- res.clearCookie("access_token");
- res.clearCookie("refresh_token");
- res.send("Utilisateur déconnecté");
+exports.verificationUsers = async (req, res) => {
+  const tokenVar = req.query.token;
 
+  console.log("token", tokenVar);
+
+  // Vérifier si le token existe 
+ User.findOne({ token: tokenVar }, async (err, user) => {
+   if (err) {
+     res.status(500).send({ error: err.message });
+   } else if (user) {
+
+    await User.findByIdAndUpdate(user._id, { isValidated: true });
+
+     return res.status(200).send({ message: "Utilisateur vérifier avec success !"})
+   }
+   else {
+    return res.status(404).send({ error: "Utilisateur introuvable !" });
+  }
+ });
 };

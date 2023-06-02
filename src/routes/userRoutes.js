@@ -11,6 +11,7 @@ const {
   updateUsers,
   deleteUsers,
   logoutUsers,
+  verificationUsers,
 } = require("../controllers/userController");
 
 router.get("/getAll", isAuth, isAdmin, getAllUsers);
@@ -35,5 +36,7 @@ router.post("/register", registerUsers);
 router.put("/update", isAuth, updateUsers);
 
 router.delete("/delete", isAuth, deleteUsers);
+
+router.post("/verification", verificationUsers);
 
 module.exports = router;
