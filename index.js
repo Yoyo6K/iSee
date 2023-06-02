@@ -105,12 +105,7 @@ app.get("/api/livechat/:videoId", (req, res) => {
   res.sendFile(__dirname + "/public/livechat.html");
 });
 
-io.use((socket,next) => {
 
-  socket.user = "Dim"; 
-  next();
-
-})
 
 // Middleware pour les connexions de socket
 io.on("connection", (socket) => {
@@ -124,11 +119,11 @@ io.on("connection", (socket) => {
   socket.on("chat message", (data) => {
     console.log(`message received for video ${data.videoId}: ${data.message}`);
     const { message, timestamp, author } = data;
-    console.log("timestamp", timestamp, socket.user);
+    console.log("timestamp", timestamp, author);
     const newMessage = {
       content: message,
       timestamp: timestamp,
-      author: socket.user,
+      author: author,
     };
     io.to(`video-${data.videoId}`).emit("chat message", newMessage);
   });
