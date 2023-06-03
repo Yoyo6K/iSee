@@ -332,9 +332,12 @@ exports.verificationUsers = async (req, res) => {
      res.status(500).send({ error: err.message });
    } else if (user) {
 
+    if (user.isValidated)
+      return res.status(200).send({ message : "Adresse mail déjà validé"});
+      
     await User.findByIdAndUpdate(user._id, { isValidated: true });
 
-     return res.status(200).send({ message: "Utilisateur vérifier avec success !"})
+    return res.status(200).send({ message: "Utilisateur vérifier avec success !"})
    }
    else {
     return res.status(404).send({ error: "Utilisateur introuvable !" });
