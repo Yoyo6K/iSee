@@ -96,7 +96,6 @@ console.log("developement ", !isDevelopment);
               res.cookie("access_token", token, {
                 httpOnly: true,
                 secure: true,
-                sameSite: "None",
                 maxAge: 60 * 60 * 1000,
               });
 
@@ -104,7 +103,6 @@ console.log("developement ", !isDevelopment);
               res.cookie("refresh_token", refreshToken, {
                 httpOnly: true,
                 secure: true,
-                sameSite: "None",
                 maxAge: 20 * 60 * 1000,
               });
               res.send({
