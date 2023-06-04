@@ -42,6 +42,8 @@ const app = express();
 app.use(helmet());
 
 app.use(cookieParser());
+console.log(process.env.NODE_ENV);
+
 
 // Setup the WebSocket server using Socket.io
 const http = require("http");
@@ -50,7 +52,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [`https://localhost:3000`, "https://iseevision.fr"],
+    origin: [`https://localhost:3000`, "https://iseevision.fr","http://localhost:3000"],
     methods: ["GET", "POST"],
   },
 });
@@ -58,7 +60,7 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: [`https://localhost:3000`, "https://iseevision.fr"],
+    origin: [`https://localhost:3000`, "https://iseevision.fr", "http://localhost:3000"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     optionsSuccessStatus: 204,

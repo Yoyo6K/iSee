@@ -1,10 +1,13 @@
-const express = require("express");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
 const emailConfig = require("../../config/Mailer");
+require("dotenv").config();
+
+// Vérification si l'environment est en developpement
+const isDevelopment = process.env.NODE_ENV === "development";
 
 const {
   validateLogin,
@@ -86,16 +89,20 @@ exports.loginUsers = async (req, res) => {
                 expiresAt: Date.now() + 20 * 60 * 1000,
               });
 
+              
+console.log("developement ", !isDevelopment);
+
+
               res.cookie("access_token", token, {
                 httpOnly: true,
-                secure: true,
+                secure: !isDevelopment,
                 maxAge: 60 * 60 * 1000,
               });
 
               /* On créer le cookie contenant le refresh token */
               res.cookie("refresh_token", refreshToken, {
                 httpOnly: true,
-                secure: true,
+                secure: !isDevelopment,
                 maxAge: 20 * 60 * 1000,
               });
               res.send({
@@ -334,7 +341,7 @@ exports.verificationUsers = async (req, res) => {
 
     if (user.isValidated)
       return res.status(200).send({ message : "Adresse mail déjà validé"});
-      
+
     await User.findByIdAndUpdate(user._id, { isValidated: true });
 
     return res.status(200).send({ message: "Utilisateur vérifier avec success !"})
