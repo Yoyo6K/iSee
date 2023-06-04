@@ -50,7 +50,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [`http://localhost:3000`, "https://iseevision.fr"],
+    origin: [`https://localhost:3000`, "https://iseevision.fr"],
     methods: ["GET", "POST"],
   },
 });
@@ -58,7 +58,7 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: [`http://localhost:3000`, "https://iseevision.fr"],
+    origin: [`https://localhost:3000`, "https://iseevision.fr"],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     optionsSuccessStatus: 204,
@@ -137,13 +137,13 @@ server.listen(port, () => {
   console.log(
     chalk.magenta(
       "Server running on :",
-      chalk.yellow.underline(`http://localhost:${port}`)
+      chalk.yellow.underline(`https://localhost:${port}`)
     )
   );
   console.log(
     chalk.cyan(
       "Swagger on :",
-      chalk.yellow.underline(`http://localhost:${port}/swagger`)
+      chalk.yellow.underline(`https://localhost:${port}/swagger`)
     )
   );
 });
