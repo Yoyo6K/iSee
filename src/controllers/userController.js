@@ -104,7 +104,6 @@ console.log("developement ", !isDevelopment);
               res.cookie("refresh_token", refreshToken, {
                 httpOnly: true,
                 secure: true,
-                domain: "localhost",
                 sameSite: isDevelopment ? "None" : true,
                 maxAge: 20 * 60 * 1000,
               });
