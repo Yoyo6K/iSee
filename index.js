@@ -60,11 +60,16 @@ const io = new Server(server, {
 
 app.use(
   cors({
-    origin: [`https://localhost:3000`, "https://iseevision.fr", "http://localhost:3000"],
+    origin: [
+      `https://localhost:3000`,
+      "https://iseevision.fr",
+      "http://localhost:3000",
+    ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     preflightContinue: false,
     optionsSuccessStatus: 204,
     credentials: true,
+    sameSite: "none",
   })
 );
 
