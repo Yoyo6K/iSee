@@ -5,17 +5,21 @@ const mongoose = require("mongoose");
 
 const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
-
+const isDevelopment = process.env.NODE_ENV === "development";
 
 const storage = multer.diskStorage({
   destination:  (req, file, cb) => {
-    fs.mkdirSync(destLocal + "/thumbnails", { recursive: true });
-    fs.mkdirSync(destLocal + "/videos", { recursive: true });
+    fs.mkdirSync((isDevelopment ? destLocal : destServer) + "/thumbnails", {
+      recursive: true,
+    });
+    fs.mkdirSync((isDevelopment ? destLocal : destServer) + "/videos", {
+      recursive: true,
+    });
 
     if (file.fieldname == "thumbnail")
-      cb(null, destLocal + "/thumbnails");
+      cb(null, (isDevelopment ? destLocal : destServer) + "/thumbnails");
     else if (file.fieldname == "video")
-      cb(null, destLocal + "/videos");
+      cb(null, (isDevelopment ? destLocal : destServer) + "/videos");
     else{
       cb(null, false);
       return cb(new Error("File not allowed"));
