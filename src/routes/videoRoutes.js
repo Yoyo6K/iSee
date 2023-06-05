@@ -12,7 +12,7 @@ const {
 } = require("../controllers/videoController");
 const fileUpload = require("../middleware/fileUpload");
 
-router.get("/", getAllVideos);
+router.get("/getAll", getAllVideos);
 
 router.get("/:id", getVideo);
 
