@@ -37,6 +37,11 @@ try {
       if (!user) {
         return res.status(401).json({ message: `User ${userId} not exists` });
       }
+
+
+      if(!user.isValidated ) {
+         return res.status(401).json({ message: "Account not validated" });
+      }
   
       // Vérifiez si le token de rafraîchissement a expiré ou est sur le point d'expirer
       const refreshTokenExpired = user.expiresAt && Date.now() > user.expiresAt;
