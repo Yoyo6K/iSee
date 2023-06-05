@@ -19,6 +19,6 @@ router.post("/like/:commentId", isAuth, likeComment);
 
 router.post("/dislike/:commentId", isAuth, dislikeComment);
 
-router.delete("/:commentId", isAuth, deleteComment);
+router.delete("/delete/:commentId", isAuth, deleteComment);
 
 module.exports = router;

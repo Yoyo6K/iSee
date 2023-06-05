@@ -104,7 +104,10 @@ exports.deleteComment = async (req, res) => {
       return res.status(404).send({ error: "Comment not found" });
     }
 
-    if (comment.userId.toString() !== userId || req.user.isAdmin !== true) {
+    const isSameUser = comment.userId.toString() === userId.toString();
+    const isAdmin = req.user.isAdmin === true;
+
+    if (!isSameUser && !isAdmin) {
       return res.status(403).send({ error: "You don't have permission" });
     }
 
