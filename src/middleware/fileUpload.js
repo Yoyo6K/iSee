@@ -7,7 +7,7 @@ const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
 const isDevelopment = process.env.NODE_ENV === "development";
 
-const destination = isDevelopment ? destLocal : destServer;
+const destination = isDevelopment ? destLocal : "/mnt/iseeData";
 
 console.log('Destination file : ', destination)
 
