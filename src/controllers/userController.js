@@ -327,7 +327,7 @@ exports.deleteUsers = async (req, res) => {
 exports.logoutUsers = async (req, res) => {
   res.clearCookie("access_token");
   res.clearCookie("refresh_token");
-  res.send("Utilisateur déconnecté");
+  res.send({ message :"Utilisateur déconnecté"});
 };
 
 exports.verificationUsers = async (req, res) => {
