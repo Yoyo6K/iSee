@@ -9,6 +9,8 @@ const isDevelopment = process.env.NODE_ENV === "development";
 
 const destination = isDevelopment ? destLocal : destServer;
 
+console.log('Destination file : ', destination)
+
 const storage = multer.diskStorage({
   destination:  (req, file, cb) => {
     fs.mkdirSync(destination + "/thumbnails", {
