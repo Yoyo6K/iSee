@@ -9,10 +9,28 @@ const isDevelopment = process.env.NODE_ENV === "development";
 
 const destination = isDevelopment ? destLocal : destServer;
 
-console.log('Destination file : ', destination)
+// Chemin du répertoire à vérifier
+const cheminRepertoireMount = `${destServer}/thumbnails`; 
+
+// Vérification de l'accessibilité du répertoire
+
 
 const storage = multer.diskStorage({
+
   destination:  (req, file, cb) => {
+
+    if (destination === destServer)
+    {
+      fs.access(cheminRepertoireMount, fs.constants.F_OK, (err) => {
+        if (err) {
+          return cb(new Error("Le répertoire n'est pas accessible !"));
+        } else {
+          console.log("Le répertoire est accessible");
+        }
+      });
+    }
+
+
     fs.mkdirSync(destination + "/thumbnails", {
       recursive: true,
     });
@@ -20,10 +38,12 @@ const storage = multer.diskStorage({
       recursive: true,
     });
 
+    
+
     if (file.fieldname == "thumbnail")
-      cb(null, destination + "/thumbnails");
+      cb(null, `${destServer}/thumbnails`);
     else if (file.fieldname == "video")
-      cb(null, destination + "/videos");
+      cb(null, `${destServer}/videos`);
     else{
       cb(null, false);
       return cb(new Error("File not allowed"));
