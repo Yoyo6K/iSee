@@ -15,9 +15,9 @@ router.get("/video/:videoId", getCommentsByVideoId);
 
 router.post("/add", isAuth, addComment);
 
-router.post("/like/:commentId", isAuth, likeComment);
+router.put("/like/:commentId", isAuth, likeComment);
 
-router.post("/dislike/:commentId", isAuth, dislikeComment);
+router.put("/dislike/:commentId", isAuth, dislikeComment);
 
 router.delete("/delete/:commentId", isAuth, deleteComment);
 

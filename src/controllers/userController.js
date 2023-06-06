@@ -262,37 +262,48 @@ exports.updateUsers = async (req, res) => {
   }
 
   try {
-    const { username, email } = req.body;
+    const updateFields = {};
 
-    // Vérifier si le nouveau nom d'utilisateur existe déjà
-    const existingUser = await User.findOne({ username });
-
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "This username is already taken." });
-    }
-
-    // Vérifier si le nouvel e-mail existe déjà
-    const existingEmail = await User.findOne({ email });
-
-    if (existingEmail) {
-      return res.status(400).json({ message: "This email is already in use." });
-    }
-
-    // Hash le mot de passe de l'utilisateur
-    bcrypt.hash(req.body.password, 10, async (err, hash) => {
-      if (err) {
-        res.status(500).send(err);
+    // Seulement mettre à jour les champs fournis
+    if (req.body.username !== undefined) {
+      const existingUser = await User.findOne({ username: req.body.username });
+      if (existingUser) {
+        return res.status(400).json({ message: "This username is already taken." });
       } else {
-        const user = await User.findByIdAndUpdate(
-          req.user._id,
-          { ...req.body, password: hash, updatedAt: new Date() },
-          { new: true }
-        );
-        res.status(200).send(user);
+        updateFields.username = req.body.username;
       }
-    });
+    }
+
+    if (req.body.email !== undefined) {
+      const existingEmail = await User.findOne({ email: req.body.email });
+      if (existingEmail) {
+        return res.status(400).json({ message: "This email is already in use." });
+      } else {
+        updateFields.email = req.body.email;
+      }
+    }
+
+    if (req.body.password !== undefined) {
+      // Hash le mot de passe de l'utilisateur
+      await bcrypt.hash(req.body.password, 10, (err, hash) => {
+        if (err) {
+          return res.status(500).send(err);
+        } else {
+          updateFields.password = hash;
+        }
+      });
+    }
+
+    if (req.body.isAdmin !== undefined) {
+      updateFields.isAdmin = req.body.isAdmin;
+    }
+
+    updateFields.updatedAt = new Date();
+
+    const user = await User.findByIdAndUpdate(req.user._id, updateFields, { new: true });
+
+    res.status(200).send(user);
+
   } catch (error) {
     console.log(error);
     res.status(400).json({ error });

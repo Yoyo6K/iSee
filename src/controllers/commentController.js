@@ -41,8 +41,11 @@ exports.likeComment = async (req, res) => {
       return res.status(404).send({ error: "Comment not found" });
     }
 
+    const userHasLiked = comment.likes.includes(userId);
+    const userHasDisliked = comment.dislikes.includes(userId);
+
     if (userHasLiked) {
-      //retire son like si il a deja like
+      // retire son like s'il a deja like
       comment.likes.pull(userId);
       comment.likesCount--;
     } else {
@@ -50,7 +53,7 @@ exports.likeComment = async (req, res) => {
       comment.dislikes.pull(userId);
       comment.likesCount++;
       if (userHasDisliked) {
-        //retire le dislike si il a deja dislike
+        // retire le dislike s'il a deja dislike
         comment.dislikesCount--;
       }
     }
@@ -72,6 +75,9 @@ exports.dislikeComment = async (req, res) => {
     if (!comment) {
       return res.status(404).send({ error: "Comment not found" });
     }
+
+    const userHasLiked = comment.likes.includes(userId);
+    const userHasDisliked = comment.dislikes.includes(userId);
 
     if (userHasDisliked) {
       comment.dislikes.pull(userId);
