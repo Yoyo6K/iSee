@@ -52,6 +52,11 @@ exports.loginUsers = async (req, res) => {
       } else if (!user) {
         res.status(401).send({ message: "Incorrect email or password" });
       } else {
+
+        if (!user.isValidated) {
+          return res.status(401).json({ message: "Account not validated" });
+        }
+        
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
         bcrypt.compare(
           req.body.password,
@@ -88,10 +93,6 @@ exports.loginUsers = async (req, res) => {
                 token: refreshToken,
                 expiresAt: Date.now() + 20 * 60 * 1000,
               });
-
-              
-console.log("developement ", isDevelopment);
-
 
               res.cookie("access_token", token, {
                 httpOnly: true,
