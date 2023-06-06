@@ -19,16 +19,16 @@ const storage = multer.diskStorage({
 
   destination:  (req, file, cb) => {
 
-    if (destination === destServer)
-    {
-      fs.access(cheminRepertoireMount, fs.constants.F_OK, (err) => {
-        if (err) {
-          return cb(new Error("Le répertoire n'est pas accessible !"));
-        } else {
-          console.log("Le répertoire est accessible");
-        }
-      });
-    }
+    // if (destination === destServer)
+    // {
+    //   fs.access(cheminRepertoireMount, fs.constants.F_OK, (err) => {
+    //     if (err) {
+    //       return cb(new Error("Le répertoire n'est pas accessible !"));
+    //     } else {
+    //       console.log("Le répertoire est accessible");
+    //     }
+    //   });
+    // }
 
 
     fs.mkdirSync(destination + "/thumbnails", {
