@@ -35,22 +35,22 @@ const loginSchema = Joi.object({
 })
 
 const updateSchema = Joi.object({
-    username: Joi.string().min(3).required().messages({
+    username: Joi.string().min(3).optional().messages({
         'string.base': 'Invalid type',
         'string.empty': 'Username is required',
-        'string.min': `Username minimum {#limit} characters`,
+        'string.min': `Username should have a minimum length of {#limit}`,
     }),
-    email: Joi.string().email().required().messages({
+    email: Joi.string().email().optional().messages({
         'string.base': 'Invalid type',
         'string.empty': 'Email is required',
     }),
-    password: Joi.string().min(12).required().messages({
+    password: Joi.string().min(12).optional().messages({
         'string.base': 'Invalid type',
         'string.empty': 'Password is required',
-        'string.min': `Password minimum {#limit} characters`,
+        'string.min': `Password should have a minimum length of {#limit}`,
     }),
-    isAdmin: Joi.boolean().messages({
-        'string.base': 'Invalid type',
+    isAdmin: Joi.boolean().optional().messages({
+        'boolean.base': 'Invalid type',
     })
 })
 
