@@ -114,7 +114,7 @@ app.get("/api/livechat/:videoId", (req, res) => {
 
 
 
-// Middleware pour les connexions de socket
+
 io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante
   socket.on("join video chat", (videoId) => {
@@ -123,7 +123,7 @@ io.on("connection", (socket) => {
   });
 
   // Écouter les messages de chat
-  socket.on("chat message", (data) => {
+  socket.on("chat message", isAuth, (data) => {
     console.log(`message received for video ${data.videoId}: ${data.message}`);
     const { message, timestamp, author } = data;
     console.log("timestamp", timestamp, author);
