@@ -3,7 +3,7 @@ const Comment = require("../models/commentModel");
 exports.getCommentsByVideoId = async (req, res) => {
   try {
     const videoId = req.params.videoId;
-    const comments = await Comment.find({ videoId, parentComment: null })
+    const comments = await Comment.find({ videoId: videoId})
       .populate("userId", "username createdAt") //methoed de mongoose pour recuperer les info des users
       .sort({ createdAt: -1 });
     res.status(200).send(comments);
