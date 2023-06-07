@@ -9,13 +9,16 @@ const {
   uploadVideo,
   updateVideo,
   deleteVideo,
-  incrementViewCount
+  incrementViewCount,
+  searchVideos
 } = require("../controllers/videoController");
 const fileUpload = require("../middleware/fileUpload");
 
 router.get("/getAll", getAllVideos);
 
 router.get("/:id", getVideo);
+
+router.get("/search/:query", searchVideos);
 
 router.post(
   "/upload",
