@@ -258,7 +258,12 @@ exports.updateUsers = async (req, res) => {
 
   if (error) {
     console.log(error);
-    return res.send(error.details);
+    return res
+      .status(400)
+      .json({
+        message: "Erreur lors de la mise à jour",
+        error: error.details[0].message,
+      });
   }
 
   try {
