@@ -436,7 +436,7 @@
         }
       }
     },
-    "/api/videos/get/{id}": {
+    "/api/videos/{id}": {
       "get": {
         "tags": [
           "Videos"
@@ -468,6 +468,70 @@
         }
       }
     },
+    "/api/videos/search/{query}": {
+      "get": {
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Search videos",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "Video not found"
+          },
+          "500": {
+            "description": "Error fetching video"
+          }
+        }
+      }
+    },   
+      "/api/videos/addView/{videoId}": {
+        "put": {
+          "tags": [
+            "Videos"
+          ],
+          "summary": "Add a view to a video",
+          "parameters": [
+            {
+              "name": "videoId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            },
+            "400": {
+              "description": "Error updating video"
+            },
+            "404": {
+              "description": "Video not found"
+            }
+          }
+        }
+      },    
     "/api/videos/upload": {
       "post": {
         "tags": [

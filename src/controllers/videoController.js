@@ -25,6 +25,41 @@ exports.getVideo = async (req, res) => {
   }
 };
 
+exports.searchVideos = async (req, res) => {
+  const query = req.params.query;
+
+  try {
+    const videos = await Video.find({ title: { $regex: query, $options: 'i'}});
+
+    if (!videos) {
+      return res.status(404).send({ error: "No videos found, try something else"});
+    }
+
+    res.status(200).send(videos);
+  } catch (error) {
+    res.status(500).send({ error: "Error searching videos" });
+  }
+};
+
+exports.incrementViewCount = async (req, res) => {
+  try {
+    const videoId = req.params.id;
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
+    video.views += 1;
+
+    await video.save();
+    res.status(200).send(video);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: "Error incrementing view count" });
+  }
+};
+
 exports.uploadVideo = async (req, res) => {
   try {
 
