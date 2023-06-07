@@ -9,6 +9,7 @@ const {
   uploadVideo,
   updateVideo,
   deleteVideo,
+  incrementViewCount
 } = require("../controllers/videoController");
 const fileUpload = require("../middleware/fileUpload");
 
@@ -25,6 +26,8 @@ router.post(
   ]),
   uploadVideo
 );
+
+router.put('/addView/:id', incrementViewCount);
 
 router.put("/:id", isAuth, updateVideo);
 

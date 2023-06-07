@@ -25,6 +25,25 @@ exports.getVideo = async (req, res) => {
   }
 };
 
+exports.incrementViewCount = async (req, res) => {
+  try {
+    const videoId = req.params.id;
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
+    video.views += 1;
+
+    await video.save();
+    res.status(200).send(video);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: "Error incrementing view count" });
+  }
+};
+
 exports.uploadVideo = async (req, res) => {
   try {
 
