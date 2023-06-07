@@ -60,6 +60,74 @@ exports.incrementViewCount = async (req, res) => {
   }
 };
 
+exports.likeVideo = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const userId = req.user._id;
+
+    const video = await Video.findById(videoId);
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
+
+    const userHasLiked = video.likes.includes(userId);
+    const userHasDisliked = video.dislikes.includes(userId);
+
+    if (userHasLiked) {
+      // retire son like s'il a deja like
+      video.likes.pull(userId);
+      video.likesCount--;
+    } else {
+      video.likes.addToSet(userId);
+      video.dislikes.pull(userId);
+      video.likesCount++;
+      if (userHasDisliked) {
+        // retire le dislike s'il a deja dislike
+        video.dislikesCount--;
+      }
+    }
+
+    await video.save();
+
+    res.status(200).send(video);
+  } catch (error) {
+    res.status(500).send({ error: "Error liking the video" });
+  }
+};
+
+exports.dislikeVideo = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const userId = req.user._id;
+
+    const video = await Video.findById(videoId);
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
+
+    const userHasLiked = video.likes.includes(userId);
+    const userHasDisliked = video.dislikes.includes(userId);
+
+    if (userHasDisliked) {
+      video.dislikes.pull(userId);
+      video.dislikesCount--;
+    } else {
+      video.dislikes.addToSet(userId);
+      video.likes.pull(userId);
+      video.dislikesCount++;
+      if (userHasLiked) {
+        video.likesCount--;
+      }
+    }
+
+    await video.save();
+
+    res.status(200).send(video);
+  } catch (error) {
+    res.status(500).send({ error: "Error disliking the video" });
+  }
+};
+
 exports.uploadVideo = async (req, res) => {
   try {
 

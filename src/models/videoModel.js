@@ -22,6 +22,22 @@ const videoModel = new Schema({
     type: Number,
     default: 0,
   },
+  likesCount: {
+    type: Number,
+    default: 0,
+  },
+  dislikesCount: {
+    type: Number,
+    default: 0,
+  },
+  likes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+  }],
+  dislikes: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Users',
+  }],  
   state: {
     type: String,
     enum: ["Private", "Public", "Hide"],

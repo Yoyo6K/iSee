@@ -531,7 +531,81 @@
             }
           }
         }
-      },    
+      },
+      "/api/videos/like/{videoId}": {
+        "put": {
+          "tags": [
+            "Videos"
+          ],
+          "summary": "Like a video",
+          "security": [
+            {
+              "XSRF-Token": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "videoId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            },
+            "404": {
+              "description": "Video not found"
+            },
+            "500": {
+              "description": "Error liking the video"
+            }
+          }
+        }
+      },
+      "/api/videos/dislike/{videoId}": {
+        "put": {
+          "tags": [
+            "Videos"
+          ],
+          "summary": "Dislike a video",
+          "security": [
+            {
+              "XSRF-Token": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "videoId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            },
+            "404": {
+              "description": "Video not found"
+            },
+            "500": {
+              "description": "Error disliking the video"
+            }
+          }
+        }
+      },      
     "/api/videos/upload": {
       "post": {
         "tags": [
