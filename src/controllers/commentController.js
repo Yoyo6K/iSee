@@ -16,7 +16,7 @@ exports.addComment = async (req, res) => {
   try {
     const { videoId, content } = req.body;
     const userId = req.user._id;
-
+   
     const newComment = new Comment({
       videoId,
       userId,
@@ -24,7 +24,12 @@ exports.addComment = async (req, res) => {
     });
 
     const savedComment = await newComment.save();
-    res.status(201).send(savedComment);
+     const populatedComment = await Comment.findById(savedComment._id).populate(
+       "userId"
+     );
+
+
+    res.status(201).send(populatedComment);
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: "Error adding comment" });
@@ -36,7 +41,10 @@ exports.likeComment = async (req, res) => {
     const { commentId } = req.params;
     const userId = req.user._id;
 
-    const comment = await Comment.findById(commentId);
+    const comment = await Comment.findById(commentId).populate(
+      "userId",
+      "username createdAt"
+    );
     if (!comment) {
       return res.status(404).send({ error: "Comment not found" });
     }
@@ -71,7 +79,10 @@ exports.dislikeComment = async (req, res) => {
     const { commentId } = req.params;
     const userId = req.user._id;
 
-    const comment = await Comment.findById(commentId);
+    const comment = await Comment.findById(commentId).populate(
+      "userId",
+      "username createdAt"
+    );
     if (!comment) {
       return res.status(404).send({ error: "Comment not found" });
     }
