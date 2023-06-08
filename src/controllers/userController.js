@@ -52,11 +52,10 @@ exports.loginUsers = async (req, res) => {
       } else if (!user) {
         res.status(401).send({ message: "Incorrect email or password" });
       } else {
-
         if (!user.isValidated) {
           return res.status(401).json({ message: "Account not validated" });
         }
-        
+
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
         bcrypt.compare(
           req.body.password,
@@ -258,31 +257,36 @@ exports.updateUsers = async (req, res) => {
 
   if (error) {
     console.log(error);
-    return res
-      .status(400)
-      .json({
-        message: "Erreur lors de la mise à jour",
-        error: error.details[0].message,
-      });
+    return res.status(400).json({
+      message: "Erreur lors de la mise à jour",
+      error: error.details[0].message,
+    });
   }
 
   try {
     const updateFields = {};
 
     // Seulement mettre à jour les champs fournis
-    if (req.body.username !== undefined) {
+    if (
+      req.body.username !== undefined &&
+      req.body.username !== req.user.username
+    ) {
       const existingUser = await User.findOne({ username: req.body.username });
       if (existingUser) {
-        return res.status(400).json({ message: "This username is already taken." });
+        return res
+          .status(400)
+          .json({ message: "This username is already taken." });
       } else {
         updateFields.username = req.body.username;
       }
     }
 
-    if (req.body.email !== undefined) {
+    if (req.body.email !== undefined && req.body.email !== req.user.email) {
       const existingEmail = await User.findOne({ email: req.body.email });
       if (existingEmail) {
-        return res.status(400).json({ message: "This email is already in use." });
+        return res
+          .status(400)
+          .json({ message: "This email is already in use." });
       } else {
         updateFields.email = req.body.email;
       }
@@ -305,10 +309,11 @@ exports.updateUsers = async (req, res) => {
 
     updateFields.updatedAt = new Date();
 
-    const user = await User.findByIdAndUpdate(req.user._id, updateFields, { new: true });
+    const user = await User.findByIdAndUpdate(req.user._id, updateFields, {
+      new: true,
+    });
 
     res.status(200).send(user);
-
   } catch (error) {
     console.log(error);
     res.status(400).json({ error });
@@ -342,7 +347,7 @@ exports.deleteUsers = async (req, res) => {
 exports.logoutUsers = async (req, res) => {
   res.clearCookie("access_token");
   res.clearCookie("refresh_token");
-  res.send({ message :"Utilisateur déconnecté"});
+  res.send({ message: "Utilisateur déconnecté" });
 };
 
 exports.verificationUsers = async (req, res) => {
@@ -350,21 +355,21 @@ exports.verificationUsers = async (req, res) => {
 
   console.log("token", tokenVar);
 
-  // Vérifier si le token existe 
- User.findOne({ token: tokenVar }, async (err, user) => {
-   if (err) {
-     res.status(500).send({ error: err.message });
-   } else if (user) {
+  // Vérifier si le token existe
+  User.findOne({ token: tokenVar }, async (err, user) => {
+    if (err) {
+      res.status(500).send({ error: err.message });
+    } else if (user) {
+      if (user.isValidated)
+        return res.status(200).send({ message: "Adresse mail déjà validé" });
 
-    if (user.isValidated)
-      return res.status(200).send({ message : "Adresse mail déjà validé"});
+      await User.findByIdAndUpdate(user._id, { isValidated: true });
 
-    await User.findByIdAndUpdate(user._id, { isValidated: true });
-
-    return res.status(200).send({ message: "Utilisateur vérifier avec success !"})
-   }
-   else {
-    return res.status(404).send({ error: "Utilisateur introuvable !" });
-  }
- });
+      return res
+        .status(200)
+        .send({ message: "Utilisateur vérifier avec success !" });
+    } else {
+      return res.status(404).send({ error: "Utilisateur introuvable !" });
+    }
+  });
 };
