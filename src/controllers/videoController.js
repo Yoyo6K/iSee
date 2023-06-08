@@ -29,7 +29,7 @@ exports.getUserVideos = async (req, res) => {
   try {
     const userId = req.user._id;
     let videos;
-
+    console.log(JSON.stringify(isAuth))
     if (req.user && req.user._id === userId) {
       videos = await Video.find({ ownerId: userId });
     } else {
