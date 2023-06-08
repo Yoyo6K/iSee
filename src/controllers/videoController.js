@@ -1,5 +1,6 @@
 const Video = require("../models/videoModel");
 const mongoose = require("mongoose");
+
 exports.getAllVideos = async (req, res) => {
   try {
     const defaultState = "Public";

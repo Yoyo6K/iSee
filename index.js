@@ -10,7 +10,9 @@ const cors = require("cors");
 const userRoutes = require("./src/routes/userRoutes");
 const videoRoutes = require("./src/routes/videoRoutes");
 const commentRoutes = require("./src/routes/commentRoutes");
-// const livechatRoutes = require('./src/routes/livechatRoutes');
+const dashboardRoutes = require("./src/routes/dashboardRoutes");
+
+
 const isAuth = require("./src/middleware/isAuth");
 const dbConnect = require("./config/connectMongo");
 const { Server } = require("socket.io");
@@ -44,7 +46,6 @@ app.use(helmet());
 app.use(cookieParser());
 console.log(process.env.NODE_ENV);
 
-
 // Setup the WebSocket server using Socket.io
 const http = require("http");
 
@@ -56,7 +57,6 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
   },
 });
-
 
 app.use(
   cors({
@@ -93,7 +93,7 @@ app.use(bodyParser.json());
 app.use("/api/users", userRoutes);
 app.use("/api/videos", videoRoutes);
 app.use("/api/comments", commentRoutes);
-// app.use('/api/livechat', livechatRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
 /**
  * * SWAGGER
