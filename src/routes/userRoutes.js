@@ -20,6 +20,7 @@ router.get("/profile", isAuth, profileUsers);
 router.get("/checkIsAuth", isAuth, async (req, res) => {
   res.status(200).send({
     user: {
+      id: req.user._id,
       username: req.user.username,
       email: req.user.email,
       isAdmin: req.user.isAdmin,
