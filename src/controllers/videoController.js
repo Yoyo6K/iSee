@@ -143,7 +143,7 @@ exports.dislikeVideo = async (req, res) => {
 
     await video.save();
 
-    res.status(200).send([video.likesCount,video.dislikesCount]);
+    res.status(200).send({likeCount: video.likesCount, dislikeCount: video.dislikesCount});
   } catch (error) {
     res.status(500).send({ error: "Error disliking the video" });
   }
