@@ -6,6 +6,7 @@ const isAdmin = require("../middleware/isAdmin");
 const {
   getAllVideos,
   getVideo,
+  getUserVideos,
   uploadVideo,
   updateVideo,
   deleteVideo,
@@ -18,7 +19,7 @@ const fileUpload = require("../middleware/fileUpload");
 
 router.get("/getAll", getAllVideos);
 
-router.get("/:id", getVideo);
+router.get("/user/:userId", getUserVideos);
 
 router.get("/search/:query", searchVideos);
 
@@ -41,5 +42,7 @@ router.put('/addView/:id', incrementViewCount);
 router.put("/:id", isAuth, updateVideo);
 
 router.delete("/:id", isAuth, isAdmin, deleteVideo);
+
+router.get("/:id", getVideo);
 
 module.exports = router;

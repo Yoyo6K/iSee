@@ -25,11 +25,26 @@ exports.getVideo = async (req, res) => {
   }
 };
 
+exports.getUserVideos = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const defaultState = "Public";
+    const videos = await Video.find({ ownerId: userId, status: defaultState });
+    if (!videos.length) {
+      return res.status(404).send({ error: "No videos found for this user" });
+    }
+    res.status(200).send(videos);
+  } catch (error) {
+    res.status(500).send({ error: "Error fetching user's videos" });
+  }
+};
+
 exports.searchVideos = async (req, res) => {
   const query = req.params.query;
+  const defaultState = "Public";
 
   try {
-    const videos = await Video.find({ title: { $regex: query, $options: 'i'}});
+    const videos = await Video.find({ title: { $regex: query, $options: 'i'}, status: defaultState });
 
     if (!videos) {
       return res.status(404).send({ error: "No videos found, try something else"});

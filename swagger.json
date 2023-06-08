@@ -468,6 +468,38 @@
         }
       }
     },
+    "/api/videos/user/{userId}": {
+      "get": {
+        "tags": [
+          "Videos"
+        ],
+        "summary": "Get user's videos",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Error fetching user's videos"
+          }
+        }
+      }
+    },   
     "/api/videos/search/{query}": {
       "get": {
         "tags": [
