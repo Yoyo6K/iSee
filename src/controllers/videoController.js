@@ -27,9 +27,15 @@ exports.getVideo = async (req, res) => {
 
 exports.getUserVideos = async (req, res) => {
   try {
-    const { userId } = req.params;
-    const defaultState = "Public";
-    const videos = await Video.find({ ownerId: userId, state: defaultState });
+    const userId = req.user._id;
+    let videos;
+
+    if (req.user && req.user._id === userId) {
+      videos = await Video.find({ ownerId: userId });
+    } else {
+      const defaultState = "Public";
+      videos = await Video.find({ ownerId: userId, state: defaultState });
+    }
     if (!videos.length) {
       return res.status(404).send({ error: "No videos found for this user" });
     }

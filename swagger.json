@@ -474,6 +474,11 @@
           "Videos"
         ],
         "summary": "Get user's videos",
+        "security": [
+          {
+            "XSRF-Token": []
+          }
+        ],
         "parameters": [
           {
             "name": "userId",
