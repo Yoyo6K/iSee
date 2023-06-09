@@ -24,6 +24,14 @@ const userModel = new Schema({
     type: String,
     required: true,
   },
+  logo_path: {
+    type: String,
+    required: false,
+  },
+  banner_path: {
+    type: String,
+    required: false,
+  },
   isAdmin: {
     type: Boolean,
     required: true,
