@@ -28,10 +28,13 @@ exports.getVideo = async (req, res) => {
 
 exports.getUserVideos = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const {userId} = req.params;
+    console.log(userId);
+    const isAuthenticated = req.isAuthenticated;
     let videos;
-    console.log(JSON.stringify(isAuth))
-    if (req.user && req.user._id === userId) {
+    console.log(isAuthenticated);
+    console.log(req.user?._id?.toString());
+    if (isAuthenticated && userId === req.user?._id?.toString()) {
       videos = await Video.find({ ownerId: userId });
     } else {
       const defaultState = "Public";

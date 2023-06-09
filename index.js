@@ -13,7 +13,7 @@ const commentRoutes = require("./src/routes/commentRoutes");
 const dashboardRoutes = require("./src/routes/dashboardRoutes");
 
 
-const isAuth = require("./src/middleware/isAuth");
+const {isAuth} = require("./src/middleware/isAuth");
 const dbConnect = require("./config/connectMongo");
 const { Server } = require("socket.io");
 const helmet = require("helmet");

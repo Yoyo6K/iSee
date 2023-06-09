@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const isAuth = require("../middleware/isAuth");
+const {isAuth,checkAuthStatus} = require("../middleware/isAuth");
 const isAdmin = require("../middleware/isAdmin");
 
 const {
@@ -19,7 +19,7 @@ const fileUpload = require("../middleware/fileUpload");
 
 router.get("/getAll", getAllVideos);
 
-router.get("/user/:userId", getUserVideos);
+router.get("/user/:userId", checkAuthStatus, getUserVideos);
 
 router.get("/search/:query", searchVideos);
 
