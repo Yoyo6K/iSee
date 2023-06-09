@@ -666,8 +666,9 @@
                   "description": {
                     "type": "string"
                   },
-                  "status": {
-                    "type": "number"
+                  "state": {
+                    "type": "string",
+                    "enum": ["Private", "Public", "Blocked"]
                   },
                   "thumbnail": {
                     "type": "string",

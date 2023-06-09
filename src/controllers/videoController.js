@@ -1,10 +1,19 @@
 const Video = require("../models/videoModel");
 const mongoose = require("mongoose");
 
+
+const EnumVideo = {
+  Private: "Private",
+  Public: "Public",
+  Blocked: "Blocked",
+};
+
+
+
 exports.getAllVideos = async (req, res) => {
   try {
-    const defaultState = "Public";
-    const videos = await Video.find({ status: defaultState });
+    const defaultState = EnumVideo.Public;
+    const videos = await Video.find({ state: defaultState });
     res.status(200).send(videos);
   } catch (error) {
     res.status(500).send({ error: "Error fetching all videos" });
@@ -13,7 +22,7 @@ exports.getAllVideos = async (req, res) => {
 
 exports.getVideo = async (req, res) => {
   try {
-    const defaultState = "Public";
+    const defaultState = EnumVideo.Public;
     const video = await Video.findOne({ _id: req.params.id, state: defaultState });
 
     if (!video) {
@@ -37,7 +46,7 @@ exports.getUserVideos = async (req, res) => {
     if (isAuthenticated && userId === req.user?._id?.toString()) {
       videos = await Video.find({ ownerId: userId });
     } else {
-      const defaultState = "Public";
+      const defaultState = EnumVideo.Public;
       videos = await Video.find({ ownerId: userId, state: defaultState });
     }
     if (!videos.length) {
@@ -51,7 +60,7 @@ exports.getUserVideos = async (req, res) => {
 
 exports.searchVideos = async (req, res) => {
   const query = req.params.query;
-  const defaultState = "Public";
+  const defaultState = EnumVideo.Public;
 
   try {
     const videos = await Video.find({ title: { $regex: query, $options: 'i'}, state: defaultState });
@@ -162,16 +171,17 @@ exports.uploadVideo = async (req, res) => {
     const videoPath = req.files["video"][0].path
     const thumbnailPath = req.files["thumbnail"][0].path
 
-    console.log("FILE : " + req.files["thumbnail"][0].path);
 
     const uploadId = mongoose.Types.ObjectId(uploadIdSTR).toString()
-
+    console.log(req.body)
+      console.log(EnumVideo[req.body.state]);
 
     const newVideo = new Video({
       _id: uploadId,
       ownerId: req.user._id,
       thumbnail_path: thumbnailPath,
       video_path: videoPath,
+      state: EnumVideo[req.body.state],
       ...req.body
     });
 

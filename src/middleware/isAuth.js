@@ -2,12 +2,12 @@ const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 
-const checkAuthentication = async (req,res) => {
+const checkAuthentication = async (req, res) => {
   const { cookies, headers } = req;
 
   /* On vérifie que le JWT est présent dans les cookies de la requête */
   if (!cookies || !cookies.access_token) {
-    return false;
+    return { isAuthenticated: false, error: "Missing token in cookie" };
     // return res.status(401).json({ message: 'Missing token in cookie' });
   }
 
@@ -15,7 +15,7 @@ const checkAuthentication = async (req,res) => {
 
   /* On vérifie que le token CSRF est présent dans les en-têtes de la requête */
   if (!headers || !headers["x-xsrf-token"]) {
-    return false;
+    return { isAuthenticated: false, error: "Missing XSRF token in headers" };
     //return res.status(401).json({ message: 'Missing XSRF token in headers' });
   }
 
@@ -31,7 +31,7 @@ const checkAuthentication = async (req,res) => {
     if (xsrfToken !== decodedToken.xsrfToken) {
       res.clearCookie("access_token");
       res.clearCookie("refresh_token");
-      return false;
+      return { isAuthenticated: false, error: "Bad xsrf token" };
       // return res.status(401).json({ message: "Bad xsrf token" });
     }
     const userId = decodedToken.sub;
@@ -41,22 +41,22 @@ const checkAuthentication = async (req,res) => {
     if (!user) {
       res.clearCookie("access_token");
       res.clearCookie("refresh_token");
-      return false;
+      return { isAuthenticated: false, error: `User ${userId} not exists` };
       //  return res.status(401).json({ message: `User ${userId} not exists` });
     }
 
     if (!user.isValidated) {
-      return false;
+      return { isAuthenticated: false, error: "Account not validated" };
       //return res.status(401).json({ message: "Account not validated" });
     }
 
     // Vérifiez si le token de rafraîchissement a expiré ou est sur le point d'expirer
     const refreshTokenExpired = user.expiresAt && Date.now() > user.expiresAt;
     const refreshTokenExpiringSoon =
-      user.expiresAt && Date.now() > user.expiresAt - 19 * 60 * 1000; // 10 minutes avant l'expiration
+    user.expiresAt && Date.now() > user.expiresAt - 19 * 60 * 1000; // 10 minutes avant l'expiration
 
     if (user.token !== cookies.refresh_token) {
-      return false;
+      return { isAuthenticated: false, error: "Refresh token is not valid !" };
       // return res.status(401).json({ message: 'Refresh token is not valid !' });
     }
 
@@ -77,54 +77,28 @@ const checkAuthentication = async (req,res) => {
     }
     /* On passe l'utilisateur dans notre requête afin que celui-ci soit disponible pour les prochains middlewares */
     req.user = user;
-    return true;
+    return { isAuthenticated: true };
   } catch (err) {
     return res.status(500).json({ message: "Internal error" + err.message });
   }
 };
 
 exports.isAuth = async (req, res, next) => {
-  const isAuthentificated = await checkAuthentication(req);
+  const { isAuthenticated, error } = await checkAuthentication(req, res);
 
-  if (!isAuthentificated) {
-    return res
-      .status(401)
-      .json({ message: "Error, please disconnect and reconnect" });
+  if (!isAuthenticated) {
+    return res.status(401).json({ message: error });
   }
   /* On appelle le prochain middleware */
   return next();
 };
 
 exports.checkAuthStatus = async (req, res, next) => {
-  const isAuthentificated = await checkAuthentication(req,res);
-req.isAuthenticated = false 
+  const { isAuthenticated } = await checkAuthentication(req, res);
+  req.isAuthenticated = false;
 
-  if (isAuthentificated)
-    req.isAuthenticated = true;
+  if (isAuthenticated) req.isAuthenticated = true;
 
   return next();
 };
 
-// console.log(req.headers.authorization);
-
-// if (req.headers.authorization) {
-//   const token = req.headers.authorization.split(" ")[1];
-//   try {
-//     const jwt_token = jwt.verify(token, process.env.JWT_SECRET);
-//     const user = await User.findById(jwt_token.id);
-
-//     console.log(jwt_token);
-//     console.log(user);
-
-//     if (!user) {
-//       return res.status(403).send("You dont have the permission");
-//     }
-
-//     req.user = user;
-//     next();
-//}
-//    catch (error) {
-//     return res.status(498).send("Token Invalid");
-//   }
-// };
-//};

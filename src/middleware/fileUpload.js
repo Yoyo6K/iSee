@@ -7,6 +7,8 @@ const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
 const isDevelopment = process.env.NODE_ENV === "development";
 
+
+console.log("destlocal : ",destLocal);
 const destination = isDevelopment ? destLocal : destServer;
 
 // Chemin du répertoire à vérifier
@@ -18,7 +20,7 @@ const cheminRepertoireMount = `${destServer}/thumbnails`;
 const storage = multer.diskStorage({
 
   destination:  (req, file, cb) => {
-
+console.log("destination : ", destination);
     if (destination === destServer)
     {
       fs.access(cheminRepertoireMount, fs.constants.F_OK, (err) => {
@@ -41,9 +43,9 @@ const storage = multer.diskStorage({
     
 
     if (file.fieldname == "thumbnail")
-      cb(null, `${destServer}/thumbnails`);
+      cb(null, `${destination}/thumbnails`);
     else if (file.fieldname == "video")
-      cb(null, `${destServer}/videos`);
+      cb(null, `${destination}/videos`);
     else{
       cb(null, false);
       return cb(new Error("File not allowed"));
