@@ -24,6 +24,35 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
+exports.channelUsers = async (req, res) => {
+  const isAuthenticated = req.isAuthenticated;
+  const { username } = req.params;
+
+  try {
+    if (isAuthenticated && req.user.username === username) {
+      const { _id, username, logo_path, banner_path } = req.user;
+      res.status(200).send({
+        id: _id,
+        username: username,
+        logo: logo_path,
+        banner: banner_path,
+      });
+    } else {
+      const channelUserInformation = await User.findOne({ username: username });
+      if (channelUserInformation) {
+        res.status(200).send({
+          id: channelUserInformation._id,
+          username: channelUserInformation.username,
+          logo: channelUserInformation.logo_path,
+          banner: channelUserInformation.banner_path,
+        });
+      } else res.status(404).send({ message: "User channel not found" });
+    }
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
+};
+
 exports.profileUsers = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select(
@@ -113,6 +142,8 @@ exports.loginUsers = async (req, res) => {
                   email: user.email,
                   isAdmin: user.isAdmin,
                   isValidated: user.isValidated,
+                  logo: user.logo_path,
+                  banner: user.banner,
                 },
               });
             }
@@ -156,6 +187,13 @@ exports.registerUsers = async (req, res) => {
             expiresAt: null,
             isValidated: false,
           });
+          if (
+            req.files &&
+            req.files["logo"] &&
+            req.files["logo"][0]?.path !== undefined
+          ) {
+            newUser.logo_path = req.files["logo"][0].path;
+          }
           // Enregistrez l'utilisateur dans la base de données
           newUser.save(async (err, user) => {
             if (err) {
@@ -256,7 +294,7 @@ exports.updateUsers = async (req, res) => {
   const { error } = validateUpdate(req.body);
 
   if (error) {
-    console.log(error);
+    console.log("error validator", error);
     return res.status(400).json({
       message: "Erreur lors de la mise à jour",
       error: error.details[0].message,
@@ -265,10 +303,10 @@ exports.updateUsers = async (req, res) => {
 
   try {
     const updateFields = {};
-
     // Seulement mettre à jour les champs fournis
     if (
       req.body.username !== undefined &&
+      req.body.username !== "" &&
       req.body.username !== req.user.username
     ) {
       const existingUser = await User.findOne({ username: req.body.username });
@@ -280,8 +318,11 @@ exports.updateUsers = async (req, res) => {
         updateFields.username = req.body.username;
       }
     }
-
-    if (req.body.email !== undefined && req.body.email !== req.user.email) {
+    if (
+      req.body.email !== "" &&
+      req.body.email !== undefined &&
+      req.body.email !== req.user.email
+    ) {
       const existingEmail = await User.findOne({ email: req.body.email });
       if (existingEmail) {
         return res
@@ -307,13 +348,40 @@ exports.updateUsers = async (req, res) => {
       updateFields.isAdmin = req.body.isAdmin;
     }
 
+    if (
+      req.files &&
+      req.files["logo"] &&
+      req.files["logo"][0]?.path !== undefined
+    ) {
+      console.log("Uploading logo ...");
+      updateFields.logo_path = req.files["logo"][0].path;
+    }
+
+    if (
+      req.files &&
+      req.files["banner"] &&
+      req.files["banner"][0]?.path !== undefined
+    ) {
+      updateFields.banner_path = req.files["banner"][0].path;
+    }
+
     updateFields.updatedAt = new Date();
 
     const user = await User.findByIdAndUpdate(req.user._id, updateFields, {
       new: true,
     });
 
-    res.status(200).send(user);
+    res.send({
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin,
+        isValidated: user.isValidated,
+        logo: user.logo_path,
+        banner: user.banner,
+      },
+    });
   } catch (error) {
     console.log(error);
     res.status(400).json({ error });

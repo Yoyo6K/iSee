@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const {isAuth} = require("../middleware/isAuth");
+const { isAuth, checkAuthStatus } = require("../middleware/isAuth");
 const isAdmin = require("../middleware/isAdmin");
-
+const fileUpload = require("../middleware/fileUpload");
 const {
   getAllUsers,
   profileUsers,
@@ -12,11 +12,15 @@ const {
   deleteUsers,
   logoutUsers,
   verificationUsers,
+  channelUsers,
 } = require("../controllers/userController");
 
 router.get("/getAll", isAuth, isAdmin, getAllUsers);
 
+router.get("/channel/:channelName", checkAuthStatus, channelUsers);
+
 router.get("/profile", isAuth, profileUsers);
+
 router.get("/checkIsAuth", isAuth, async (req, res) => {
   res.status(200).send({
     user: {
@@ -28,13 +32,25 @@ router.get("/checkIsAuth", isAuth, async (req, res) => {
   });
 });
 
-router.post("/logout", logoutUsers)
+router.post("/logout", logoutUsers);
 
 router.post("/login", loginUsers);
 
-router.post("/register", registerUsers);
+router.post(
+  "/register",
+  fileUpload.fields([{ name: "logo", maxCount: 1 }]),
+  registerUsers
+);
 
-router.put("/update", isAuth, updateUsers);
+router.put(
+  "/update",
+  isAuth,
+  fileUpload.fields([
+    { name: "logo", maxCount: 1 },
+    { name: "banner", maxCount: 1 },
+  ]),
+  updateUsers
+);
 
 router.delete("/delete", isAuth, deleteUsers);
 
