@@ -655,6 +655,65 @@
             }
           }
         }
+      },
+      "/api/videos/state/{videoId}": {
+        "put": {
+          "tags": [
+            "Videos"
+          ],
+          "summary": "Change video state",
+          "security": [
+            {
+              "XSRF-Token": []
+            }
+          ],
+          "parameters": [
+            {
+              "name": "videoId",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "state": {
+                      "type": "string",
+                      "enum": ["Private", "Public", "Unlisted"]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Successful response",
+              "content": {
+                "application/json": {}
+              }
+            },
+            "400": {
+              "description": "Invalid state value"
+            },
+            "403": {
+              "description": "You do not have permission to change the state of this video"
+            },
+            "404": {
+              "description": "Video not found"
+            },
+            "500": {
+              "description": "Error changing video state"
+            }
+          }
+        }
       },      
     "/api/videos/upload": {
       "post": {
