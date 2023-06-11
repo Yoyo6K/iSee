@@ -26,8 +26,11 @@ exports.getAllUsers = async (req, res) => {
 
 exports.channelUsers = async (req, res) => {
   const isAuthenticated = req.isAuthenticated;
-  const { username } = req.params;
+  const { channelName } = req.params;
+  
+  const username = channelName;
 
+  
   try {
     if (isAuthenticated && req.user.username === username) {
       const { _id, username, logo_path, banner_path } = req.user;
