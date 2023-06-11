@@ -88,12 +88,13 @@ exports.getUserVideos = async (req, res) => {
     const { userId } = req.params;
 
     const isAuthenticated = req.isAuthenticated;
+
     let videos;
 
     const { page, perPage } = req.query; // Récupérer les paramètres de pagination
 
     const pageNumber = parseInt(page) || 1;
-    const itemsPerPage = parseInt(perPage) || 1;
+    const itemsPerPage = parseInt(perPage) || 10;
 
     const offset = (pageNumber - 1) * itemsPerPage;
 
