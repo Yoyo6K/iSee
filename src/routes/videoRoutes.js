@@ -13,7 +13,8 @@ const {
   incrementViewCount,
   searchVideos,
   likeVideo,
-  dislikeVideo
+  dislikeVideo,
+  changeVideoState
 } = require("../controllers/videoController");
 const fileUpload = require("../middleware/fileUpload");
 
@@ -36,6 +37,7 @@ router.post(
   ]),
   uploadVideo
 );
+router.put("/state/:videoId", isAuth, changeVideoState);
 
 router.put('/addView/:id', incrementViewCount);
 

@@ -40,7 +40,7 @@ const videoModel = new Schema({
   }],  
   state: {
     type: String,
-    enum: ["Private", "Public", "Blocked"],
+    enum: ["Private", "Public", "Unlisted"],
     required: true,
     default: "Public",
   },

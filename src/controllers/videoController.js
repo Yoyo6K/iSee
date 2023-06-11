@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const EnumVideo = {
   Private: "Private",
   Public: "Public",
-  Blocked: "Blocked",
+  Unlisted: "Unlisted",
 };
 // console.log(JSON.stringify(videos));
 // const video = {
@@ -102,6 +102,7 @@ exports.getVideo = async (req, res) => {
 exports.getUserVideos = async (req, res) => {
   try {
     const {userId} = req.params;
+
     const isAuthenticated = req.isAuthenticated;
     let videos;
 
@@ -234,6 +235,36 @@ exports.dislikeVideo = async (req, res) => {
     res.status(200).send({likeCount: video.likesCount, dislikeCount: video.dislikesCount});
   } catch (error) {
     res.status(500).send({ error: "Error disliking the video" });
+  }
+};
+
+exports.changeVideoState = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const userId = req.user?._id?.toString();
+    const newState = req.body.state;
+
+    if (!Object.values(EnumVideo).includes(newState)) {
+      return res.status(400).send({ error: "Invalid state value" });
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
+
+    if (video.ownerId.toString() !== userId) {
+      return res.status(403).send({ error: "You do not have permission to change the state of this video" });
+    }
+
+    video.state = newState;
+
+    await video.save();
+
+    res.status(200).send(video);
+  } catch (error) {
+    res.status(500).send({ error: "Error changing video state" });
   }
 };
 
