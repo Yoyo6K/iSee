@@ -59,14 +59,12 @@ exports.getAllVideos = async (req, res) => {
 
     res.status(200).send(formattedVideos);
   } catch (error) {
-    console.log(error);
     res.status(500).send({ error: "Error fetching all videos" });
   }
 };
 
 exports.getVideo = async (req, res) => {
   try {
-    console.log(req.params.id)
     const defaultState = EnumVideo.Public;
     const video = await Video.findOne({
       _id: req.params.id.trim(),
@@ -173,7 +171,6 @@ exports.searchVideos = async (req, res) => {
 
     res.status(200).send(formattedVideos);
   } catch (error) {
-    console.log(error);
     res.status(500).send({ error: "Error searching videos" });
   }
 };
@@ -195,7 +192,6 @@ exports.incrementViewCount = async (req, res) => {
 
     res.status(200).send(formattedVideo);
   } catch (error) {
-    console.log(error);
     res.status(500).send({ error: "Error incrementing view count" });
   }
 };
@@ -316,8 +312,6 @@ exports.uploadVideo = async (req, res) => {
     const thumbnailPath = req.files["thumbnail"][0].path;
 
     const uploadId = mongoose.Types.ObjectId(uploadIdSTR).toString();
-    console.log(req.body);
-    console.log(EnumVideo[req.body.state]);
 
     const newVideo = new Video({
       _id: uploadId,
@@ -334,14 +328,12 @@ exports.uploadVideo = async (req, res) => {
 
     res.status(201).send(formattedVideo);
   } catch (error) {
-    console.log(error);
     res.status(500).send({ error: "Error uploading video" });
   }
 };
 
 exports.updateVideo = async (req, res) => {
   try {
-    console.log("updateVideo")
     const videoId = req.params.videoId;
     const userId = req.user._id;
 
@@ -351,12 +343,6 @@ exports.updateVideo = async (req, res) => {
       return res.status(404).send({ error: "Video not found" });
     }
 
-    console.log(
-      "videoUserId :",
-      video.ownerId.toString(),
-      "UserId : ",
-      userId.toString()
-    );
     if (video.ownerId.toString() !== userId.toString()) {
       return res.status(403).send({ error: "You don't have the permission" });
     }
@@ -372,7 +358,6 @@ exports.updateVideo = async (req, res) => {
 
     res.status(200).send(formattedVideo);
   } catch (error) {
-    console.log(error);
     res.status(400).json({ error });
   }
 };
