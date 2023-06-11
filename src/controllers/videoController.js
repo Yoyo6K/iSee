@@ -7,15 +7,79 @@ const EnumVideo = {
   Public: "Public",
   Blocked: "Blocked",
 };
-
+// console.log(JSON.stringify(videos));
+// const video = {
+//   _id: videos._id,
+//   description: videos.description,
+//   dislikes: videos.dislikes,
+//   dislikesCount: videos.dislikesCount,
+//   likes: videos.likes,
+//   likesCount: videos.likesCount,
+//   user: {
+//     ownerId: videos.ownerId._id,
+//     username: videos.ownerId.username,
+//     logo_path: videos.ownerId.logo_path,
+//   },
+//   state: videos.state,
+//   thumbnail_path: videos.thumbnail_path,
+//   title: videos.title,
+//   updatedAt: videos.updatedAt,
+//   uploadAt: videos.uploadAt,
+//   video_path: videos.video_path,
+//   views: videos.views,
+// };
 
 
 exports.getAllVideos = async (req, res) => {
   try {
     const defaultState = EnumVideo.Public;
-    const videos = await Video.find({ state: defaultState });
-    res.status(200).send(videos);
+    const { page, perPage } = req.query; // Récupérer les paramètres de pagination depuis le corps de la requête (request body)
+
+    const pageNumber = parseInt(page) || 1;
+    const itemsPerPage = parseInt(perPage) || 1;
+
+    const offset = (pageNumber - 1) * itemsPerPage;
+
+    const videos = await Video.find({ state: defaultState })
+      .populate("ownerId")
+      .skip(offset)
+      .limit(itemsPerPage);
+    // Créer un tableau pour stocker les résultats formatés
+    const formattedVideos = [];
+
+    // Parcourir chaque document retourné
+    for (let i = 0; i < videos.length; i++) {
+      const video = videos[i];
+
+      // Extraire les propriétés nécessaires du document et les stocker dans un nouvel objet JSON
+      const formattedVideo = {
+        _id: video._id,
+        description: video.description,
+        dislikes: video.dislikes,
+        dislikesCount: video.dislikesCount,
+        likes: video.likes,
+        likesCount: video.likesCount,
+        user: {
+          ownerId: video.ownerId._id,
+          username: video.ownerId.username,
+          logo_path: video.ownerId.logo_path,
+        },
+        state: video.state,
+        thumbnail_path: video.thumbnail_path,
+        title: video.title,
+        updatedAt: video.updatedAt,
+        uploadAt: video.uploadAt,
+        video_path: video.video_path,
+        views: video.views,
+      };
+
+      // Ajouter l'objet formaté au tableau des résultats
+      formattedVideos.push(formattedVideo);
+    }
+
+    res.status(200).send(formattedVideos);
   } catch (error) {
+    console.log(error)
     res.status(500).send({ error: "Error fetching all videos" });
   }
 };
@@ -38,16 +102,27 @@ exports.getVideo = async (req, res) => {
 exports.getUserVideos = async (req, res) => {
   try {
     const {userId} = req.params;
-    console.log(userId);
     const isAuthenticated = req.isAuthenticated;
     let videos;
-    console.log(isAuthenticated);
-    console.log(req.user?._id?.toString());
+
+    const { page, perPage } = req.params; // Récupérer les paramètres de pagination depuis le corps de la requête (request body)
+
+    const pageNumber = parseInt(page) || 1;
+    const itemsPerPage = parseInt(perPage) || 1;
+
+    const offset = (pageNumber - 1) * itemsPerPage;
+
+     
+
     if (isAuthenticated && userId === req.user?._id?.toString()) {
-      videos = await Video.find({ ownerId: userId });
+      videos = await Video.find({ ownerId: userId })
+        .skip(offset)
+        .limit(itemsPerPage);
     } else {
       const defaultState = EnumVideo.Public;
-      videos = await Video.find({ ownerId: userId, state: defaultState });
+      videos = await Video.find({ ownerId: userId, state: defaultState })
+        .skip(offset)
+        .limit(itemsPerPage);
     }
     if (!videos.length) {
       return res.status(404).send({ error: "No videos found for this user" });
@@ -198,7 +273,7 @@ exports.updateVideo = async (req, res) => {
     const videoId = req.params.videoId;
     const userId = req.user._id;
 
-    const video = await Video.findById(videoId);
+    const video = await Video.findById(videoId)
 
     if (!video) {
       return res.status(404).send({ error: "Video not found" });
