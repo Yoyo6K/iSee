@@ -41,9 +41,9 @@ router.put("/state/:videoId", isAuth, changeVideoState);
 
 router.put('/addView/:id', incrementViewCount);
 
-router.put("/:id", isAuth, updateVideo);
+router.put("/update/:videoId", isAuth, updateVideo);
 
-router.delete("/:id", isAuth, isAdmin, deleteVideo);
+router.delete("/delete/:id", isAuth, isAdmin, deleteVideo);
 
 router.get("/:id", getVideo);
 

@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const videoModel = new Schema({
   _id: {
-    type: String,
+    type: Schema.Types.ObjectId,
     required: true,
   },
   ownerId: {
