@@ -114,23 +114,23 @@ exports.deleteComment = async (req, res) => {
   try {
     const commentId = req.params.commentId;
     const userId = req.user._id;
-
+  
     const comment = await Comment.findById(commentId);
-
+  
     if (!comment) {
       return res.status(404).send({ error: "Comment not found" });
     }
-
-    const isSameUser = comment.userId.toString() === userId.toString();
-    const isAdmin = req.user.isAdmin === true;
-
-    if (!isSameUser && !isAdmin) {
-      return res.status(403).send({ error: "You don't have permission" });
+  
+    if (
+      comment.userId.toString() !== userId.toString() &&
+      req.user.isAdmin !== true
+    ) {
+      return res.status(403).send({ error: "You don't have the permission" });
     }
-
+  
     await Comment.findByIdAndDelete(commentId);
     res.status(200).send({ message: "Comment deleted" });
   } catch (error) {
     res.status(500).send({ error: "Error deleting comment" });
   }
-};
+  };
