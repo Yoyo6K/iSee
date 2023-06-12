@@ -69,7 +69,7 @@ exports.getVideo = async (req, res) => {
     const video = await Video.findOne({
       _id: req.params.id.trim(),
       state: defaultState,
-    });
+    }).populate("ownerId");
 
     if (!video) {
       return res.status(404).send({ error: "Video not found" });
