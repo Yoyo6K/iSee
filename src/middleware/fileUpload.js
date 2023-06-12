@@ -14,10 +14,16 @@ const destination = isDevelopment ? destLocal : destServer;
 const cheminRepertoireMount = `${destServer}/thumbnails`;
 
 // Vérification de l'accessibilité du répertoire
-
+const limits = {
+  fileSize: {
+    video: 3000 * 1024 * 1024, // 3000 Mo en octets
+    image: 10 * 1024 * 1024, // 10 Mo en octets
+    logo: 10 * 1024 * 1024, // 10 Mo en octets
+    banner: 10 * 1024 * 1024, // 10 Mo en octets
+  },
+};
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-
     console.log("destination : ", destination);
     // if (destination === destServer) {
     //   fs.access(cheminRepertoireMount, fs.constants.F_OK, (err) => {
@@ -57,10 +63,18 @@ const storage = multer.diskStorage({
     if (file.fieldname == "thumbnail") cb(null, `${destination}/thumbnails`);
     else if (file.fieldname == "video") cb(null, `${destination}/videos`);
     else if (file.fieldname == "logo") cb(null, `${destination}/users`);
-    else if (file.fieldname == "banner") cb(null, `${destination}/users/banners`);
+    else if (file.fieldname == "banner")
+      cb(null, `${destination}/users/banners`);
     else {
       cb(null, false);
       return cb(new Error("File not allowed"));
+    }
+
+    // Vérification de la taille du fichier
+    const fileSizeLimit = limits.fileSize[file.fieldname];
+    if (fileSizeLimit && file.size > fileSizeLimit) {
+      cb(null, false);
+      return cb(new Error("File size limit exceeded"));
     }
   },
   filename: (req, file, cb) => {
@@ -103,14 +117,7 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const limits = {
-  fileSize: {
-    video: 3000 * 1024 * 1024, // 3000 Mo en octets
-    image: 10 * 1024 * 1024, // 10 Mo en octets
-    logo: 10 * 1024 * 1024, // 10 Mo en octets
-    banner: 10 * 1024 * 1024, // 10 Mo en octets
-  },
-};
+
 
 const upload = multer({
   storage: storage,
