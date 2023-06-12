@@ -305,11 +305,16 @@ exports.changeVideoState = async (req, res) => {
 
 exports.uploadVideo = async (req, res) => {
   try {
-    //const uploadIdSTR = req.uploadId;
-    const uploadIdSTR = req.locals.uploadId;
+    const destServer = process.env.DEST_SERVER;
+    const FILE_URL_PATH = process.env.FILE_URL
 
-    const videoPath = req.files["video"][0].path;
-    const thumbnailPath = req.files["thumbnail"][0].path;
+    const uploadIdSTR = req.locals.uploadId;
+ 
+    const videoPathLocal = req.files["video"][0].path;
+    const videoPath = videoPathLocal.replace(destServer, FILE_URL_PATH);
+
+    const thumbnailPathLocal = req.files["thumbnail"][0].path;
+    const thumbnailPath = thumbnailPathLocal.replace(destServer, FILE_URL_PATH);
 
     const uploadId = mongoose.Types.ObjectId(uploadIdSTR).toString();
 

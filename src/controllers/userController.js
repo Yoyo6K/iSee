@@ -27,10 +27,9 @@ exports.getAllUsers = async (req, res) => {
 exports.channelUsers = async (req, res) => {
   const isAuthenticated = req.isAuthenticated;
   const { channelName } = req.params;
-  
+
   const username = channelName;
 
-  
   try {
     if (isAuthenticated && req.user.username === username) {
       const { _id, username, logo_path, banner_path } = req.user;
@@ -203,46 +202,6 @@ exports.registerUsers = async (req, res) => {
               console.error(err);
               res.status(500).send(err);
             } else {
-              /* On créer le token CSRF */
-              // const xsrfToken = crypto.randomBytes(64).toString("hex");
-
-              // // Générez un jeton JWT pour l'utilisateur
-              // const token = jwt.sign(
-              //   {
-              //     id: user._id,
-              //     username: user.username,
-              //     email: user.email,
-              //     isAdmin: user.isAdmin,
-              //     xsrfToken: xsrfToken,
-              //   },
-              //   process.env.JWT_SECRET,
-              //   {
-              //     expiresIn: "1h",
-              //     algorithm: "HS256",
-              //     subject: user._id.toString(),
-              //   }
-              // );
-
-              // const refreshToken = crypto.randomBytes(128).toString("base64");
-
-              // User.findByIdAndUpdate(user._id, {
-              //   token: refreshToken,
-              //   expiresAt: new Date(Number(new Date()) + 20 * 60 * 1000),
-              // });
-
-              // res.cookie("access_token", token, {
-              //   httpOnly: true,
-              //   secure: true,
-              //   maxAge: 60 * 60 * 1000,
-              // });
-
-              // /* On créer le cookie contenant le refresh token */
-              // res.cookie("refresh_token", refreshToken, {
-              //   httpOnly: false,
-              //   secure: true,
-              //   maxAge: 20 * 60 * 1000,
-              // });
-
               const token = crypto.randomBytes(64).toString("base64");
 
               await User.findByIdAndUpdate(user._id, {
@@ -295,6 +254,8 @@ exports.registerUsers = async (req, res) => {
 
 exports.updateUsers = async (req, res) => {
   const { error } = validateUpdate(req.body);
+  const destServer = process.env.DEST_SERVER;
+  const FILE_URL_PATH = process.env.FILE_URL;
 
   if (error) {
     console.log("error validator", error);
@@ -356,8 +317,8 @@ exports.updateUsers = async (req, res) => {
       req.files["logo"] &&
       req.files["logo"][0]?.path !== undefined
     ) {
-      console.log("Uploading logo ...");
-      updateFields.logo_path = req.files["logo"][0].path;
+      const logoPathLocal = req.files["logo"][0].path;
+      updateFields.logo_path = logoPathLocal.replace(destServer, FILE_URL_PATH);
     }
 
     if (
@@ -365,7 +326,11 @@ exports.updateUsers = async (req, res) => {
       req.files["banner"] &&
       req.files["banner"][0]?.path !== undefined
     ) {
-      updateFields.banner_path = req.files["banner"][0].path;
+      const bannerPathLocal = req.files["banner"][0].path;
+      updateFields.banner_path = bannerPathLocal.replace(
+        destServer,
+        FILE_URL_PATH
+      );
     }
 
     updateFields.updatedAt = new Date();

@@ -7,7 +7,6 @@ const destLocal = process.env.INIT_CWD;
 const destServer = process.env.DEST_SERVER;
 const isDevelopment = process.env.NODE_ENV === "development";
 
-console.log("destlocal : ", destLocal);
 const destination = isDevelopment ? destLocal : destServer;
 
 // Chemin du répertoire à vérifier
