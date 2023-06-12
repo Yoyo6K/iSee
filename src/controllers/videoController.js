@@ -65,7 +65,7 @@ exports.getAllVideos = async (req, res) => {
 
 exports.getVideo = async (req, res) => {
   try {
-    const defaultState = EnumVideo.Public;
+    const defaultState = [EnumVideo.Public, EnumVideo.Unlisted];
     const video = await Video.findOne({
       _id: req.params.id.trim(),
       state: defaultState,
