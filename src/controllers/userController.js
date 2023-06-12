@@ -146,7 +146,7 @@ exports.loginUsers = async (req, res) => {
                   isAdmin: user.isAdmin,
                   isValidated: user.isValidated,
                   logo: user.logo_path,
-                  banner: user.banner,
+                  banner: user.banner_path,
                 },
               });
             }
@@ -382,7 +382,7 @@ exports.updateUsers = async (req, res) => {
         isAdmin: user.isAdmin,
         isValidated: user.isValidated,
         logo: user.logo_path,
-        banner: user.banner,
+        banner: user.banner_path,
       },
     });
   } catch (error) {
