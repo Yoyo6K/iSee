@@ -363,26 +363,26 @@ exports.updateVideo = async (req, res) => {
 };
 
 exports.deleteVideo = async (req, res) => {
-  try {
-    const videoId = req.params.id;
-    const userId = req.user._id;
+try {
+  const videoId = req.params.videoId;
+  const userId = req.user._id;
 
-    const video = await Video.findById(videoId);
+const video = await Video.findById(videoId);
 
-    if (!video) {
-      return res.status(404).send({ error: "Video not found" });
-    }
+if (!video) {
+  return res.status(404).send({ error: "Video not found" });
+}
 
-    if (
-      video.ownerId.toString() !== userId.toString() ||
-      req.user.isAdmin !== true
-    ) {
-      return res.status(403).send({ error: "You don't have the permission" });
-    }
+if (
+  video.ownerId.toString() !== userId.toString() &&
+  req.user.isAdmin !== true
+) {
+  return res.status(403).send({ error: "You don't have the permission" });
+}
 
-    await Video.findByIdAndDelete(videoId);
-    res.status(200).send({ message: "Video deleted" });
-  } catch (error) {
-    res.status(500).send({ error: "Error deleting video" });
-  }
+await Video.findByIdAndDelete(videoId);
+  res.status(200).send({ message: "Video deleted" });
+} catch (error) {
+  res.status(500).send({ error: "Error deleting video" });
+}
 };
