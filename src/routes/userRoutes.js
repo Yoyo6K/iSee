@@ -28,6 +28,8 @@ router.get("/checkIsAuth", isAuth, async (req, res) => {
       username: req.user.username,
       email: req.user.email,
       isAdmin: req.user.isAdmin,
+      logo: user.logo_path,
+      banner: user.banner_path,
     },
   });
 });

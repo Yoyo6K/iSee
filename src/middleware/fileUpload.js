@@ -62,7 +62,7 @@ const storage = multer.diskStorage({
 
     if (file.fieldname == "thumbnail") cb(null, `${destination}/thumbnails`);
     else if (file.fieldname == "video") cb(null, `${destination}/videos`);
-    else if (file.fieldname == "logo") cb(null, `${destination}/users`);
+    else if (file.fieldname == "logo") cb(null, `${destination}/users/logos`);
     else if (file.fieldname == "banner")
       cb(null, `${destination}/users/banners`);
     else {
