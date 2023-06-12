@@ -43,7 +43,7 @@ router.put('/addView/:id', incrementViewCount);
 
 router.put("/update/:videoId", isAuth, updateVideo);
 
-router.delete("/delete/:id", isAuth, isAdmin, deleteVideo);
+router.delete("/delete/:videoId", isAuth, deleteVideo);
 
 router.get("/:id", getVideo);
 
