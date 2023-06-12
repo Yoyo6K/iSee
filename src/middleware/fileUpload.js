@@ -49,7 +49,7 @@ const storage = multer.diskStorage({
     }
 
     if (file.fieldname == "banner") {
-      fs.mkdirSync(`${destination}/users/banner`, {
+      fs.mkdirSync(`${destination}/users/banners`, {
         recursive: true,
       });
     }
@@ -57,7 +57,7 @@ const storage = multer.diskStorage({
     if (file.fieldname == "thumbnail") cb(null, `${destination}/thumbnails`);
     else if (file.fieldname == "video") cb(null, `${destination}/videos`);
     else if (file.fieldname == "logo") cb(null, `${destination}/users`);
-    else if (file.fieldname == "banner") cb(null, `${destination}/users/banner`);
+    else if (file.fieldname == "banner") cb(null, `${destination}/users/banners`);
     else {
       cb(null, false);
       return cb(new Error("File not allowed"));
