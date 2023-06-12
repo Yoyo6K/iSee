@@ -105,8 +105,10 @@ const fileFilter = (req, file, cb) => {
 
 const limits = {
   fileSize: {
-    video: 70 * 1024 * 1024, // 70 Mo en octets
+    video: 3000 * 1024 * 1024, // 3000 Mo en octets
     image: 10 * 1024 * 1024, // 10 Mo en octets
+    logo: 10 * 1024 * 1024, // 10 Mo en octets
+    banner: 10 * 1024 * 1024, // 10 Mo en octets
   },
 };
 
