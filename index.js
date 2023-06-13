@@ -52,7 +52,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3000"], // Ajoutez l'origine de votre application React
+    origin: ["http://localhost:3000", "https://iseevision.fr"], // Ajoutez l'origine de votre application React
     methods: ["GET", "POST"], // Ajoutez les méthodes HTTP nécessaires
     credentials: true, // Assurez-vous que cette option est définie sur true
     sameSite: "none",
