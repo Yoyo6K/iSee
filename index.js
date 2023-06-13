@@ -118,7 +118,7 @@ const adaptMiddleware = (middleware) => {
   };
 };
 // Utilisation du middleware isAuth avec socket.io
-io.use(adaptMiddleware(isAuth));
+// io.use(adaptMiddleware(isAuth));
 
 io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante

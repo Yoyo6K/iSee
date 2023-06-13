@@ -5,6 +5,7 @@ const isAdmin = require("../middleware/isAdmin");
 
 const {
   getAllVideos,
+  getAllVideosAdmin,
   getVideo,
   getUserVideos,
   uploadVideo,
@@ -19,6 +20,8 @@ const {
 const fileUpload = require("../middleware/fileUpload");
 
 router.get("/getAll", getAllVideos);
+
+router.get("/getAllAdmin", isAuth, getAllVideosAdmin);
 
 router.get("/user/:userId", checkAuthStatus, getUserVideos);
 

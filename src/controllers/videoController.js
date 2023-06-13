@@ -35,7 +35,7 @@ exports.getAllVideos = async (req, res) => {
     const { page, perPage } = req.query; // Récupérer les paramètres de pagination
 
     const pageNumber = parseInt(page) || 1;
-    const itemsPerPage = parseInt(perPage) || 1;
+    const itemsPerPage = parseInt(perPage) || 10;
 
     const offset = (pageNumber - 1) * itemsPerPage;
 
@@ -43,6 +43,40 @@ exports.getAllVideos = async (req, res) => {
       .populate("ownerId")
       .skip(offset)
       .limit(itemsPerPage);
+    // Créer un tableau pour stocker les résultats formatés
+    let formattedVideos = [];
+
+    // Parcourir chaque document retourné
+    for (let i = 0; i < videos.length; i++) {
+      const video = videos[i];
+
+      // Extraire les propriétés nécessaires du document et les stocker dans un nouvel objet JSON
+      const formattedVideo = formatVideo(video);
+
+      // Ajouter l'objet formaté au tableau des résultats
+      formattedVideos.push(formattedVideo);
+    }
+
+    res.status(200).send(formattedVideos);
+  } catch (error) {
+    res.status(500).send({ error: "Error fetching all videos" });
+  }
+};
+
+exports.getAllVideosAdmin = async (req, res) => {
+  try {
+    const { page, perPage } = req.query; // Récupérer les paramètres de pagination
+
+    const pageNumber = parseInt(page) || 1;
+    const itemsPerPage = parseInt(perPage) || 10;
+
+    const offset = (pageNumber - 1) * itemsPerPage;
+
+    const videos = await Video.find()
+      .populate("ownerId")
+      .skip(offset)
+      .limit(itemsPerPage);
+      
     // Créer un tableau pour stocker les résultats formatés
     let formattedVideos = [];
 
