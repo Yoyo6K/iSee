@@ -108,12 +108,17 @@ app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
  * * LiveChat
  */
 
-app.get("/api/livechat/:videoId", (req, res) => {
-  res.sendFile(__dirname + "/public/livechat.html");
-});
 
-
-
+// Adaptation du middleware Express pour socket.io
+const adaptMiddleware = (middleware) => {
+  return (socket, next) => {
+    const req = socket.request;
+    const res = socket.request.res;
+    middleware(req, res, next);
+  };
+};
+// Utilisation du middleware isAuth avec socket.io
+io.use(adaptMiddleware(isAuth));
 
 io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante
@@ -123,7 +128,7 @@ io.on("connection", (socket) => {
   });
 
   // Écouter les messages de chat
-  socket.on("chat message", isAuth, (data) => {
+  socket.on("chat message", (data) => {
     console.log(`message received for video ${data.videoId}: ${data.message}`);
     const { message, timestamp, author } = data;
     console.log("timestamp", timestamp, author);
