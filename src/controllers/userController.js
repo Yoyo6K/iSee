@@ -233,7 +233,7 @@ exports.registerUsers = async (req, res) => {
                 from: "no-reply@iseevision.fr",
                 to: req.body.email,
                 subject: "Isee mail verification request",
-                html: emailConfig.getHtml(encodeURIComponent(token)),
+                html: emailConfig.getHtml(encodeURIComponent(token), req.body.username),
               };
 
               transporter.sendMail(mailOptions, (error, info) => {
