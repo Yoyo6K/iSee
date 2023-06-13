@@ -52,6 +52,10 @@ const videoModel = new Schema({
     type: String,
     required: false,
   },
+  size: {
+    type: Number,
+    default: 0,
+  },
   uploadAt: {
     type: Date,
     default: Date.now,
