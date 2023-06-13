@@ -55,6 +55,17 @@ exports.channelUsers = async (req, res) => {
   }
 };
 
+exports.refreshToken = async (req, res) => {
+ try {
+   const isAuthenticated = req.isAuthenticated;
+
+
+ } catch (error) {
+   res.status(500).send({ message: "Internal Server Error" });
+ }
+
+};
+
 exports.profileUsers = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select(
@@ -146,6 +157,7 @@ exports.loginUsers = async (req, res) => {
                   isValidated: user.isValidated,
                   logo: user.logo_path,
                   banner: user.banner_path,
+                  expiresAt: user.expiresAt,
                 },
               });
             }
@@ -348,6 +360,7 @@ exports.updateUsers = async (req, res) => {
         isValidated: user.isValidated,
         logo: user.logo_path,
         banner: user.banner_path,
+        expiresAt: user.expiresAt,
       },
     });
   } catch (error) {

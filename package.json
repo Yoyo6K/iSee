@@ -27,6 +27,7 @@
     "nodemailer": "^6.9.3",
     "nodemon": "^2.0.22",
     "socket.io": "^4.6.1",
+    "socket.io-cookie-parser": "^1.0.0",
     "swagger-ui-express": "^4.6.2",
     "uuid": "^9.0.0",
     "validator": "^13.9.0"
