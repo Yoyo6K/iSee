@@ -28,8 +28,9 @@ router.get("/checkIsAuth", isAuth, async (req, res) => {
       username: req.user.username,
       email: req.user.email,
       isAdmin: req.user.isAdmin,
-      logo: user.logo_path,
-      banner: user.banner_path,
+      logo: req.user.logo_path,
+      banner: req.user.banner_path,
+      expiresAt : req.user.expiresAt
     },
   });
 });
@@ -57,5 +58,6 @@ router.put(
 router.delete("/delete", isAuth, deleteUsers);
 
 router.post("/verification", verificationUsers);
+
 
 module.exports = router;

@@ -357,6 +357,7 @@ exports.uploadVideo = async (req, res) => {
       ownerId: req.user._id,
       thumbnail_path: thumbnailPath,
       video_path: videoPath,
+      size: req.file.size,
       state: EnumVideo[req.body.state],
       ...req.body,
     });

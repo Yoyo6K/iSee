@@ -12,12 +12,12 @@ const videoRoutes = require("./src/routes/videoRoutes");
 const commentRoutes = require("./src/routes/commentRoutes");
 const dashboardRoutes = require("./src/routes/dashboardRoutes");
 
-
-const {isAuth} = require("./src/middleware/isAuth");
+const { isAuthSocketMiddleware } = require("./src/middleware/isAuth");
 const dbConnect = require("./config/connectMongo");
 const { Server } = require("socket.io");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
+const ioCookieParser = require("socket.io-cookie-parser");
 /**
  * * MONGO
  */
@@ -44,7 +44,6 @@ const app = express();
 app.use(helmet());
 
 app.use(cookieParser());
-console.log(process.env.NODE_ENV);
 
 // Setup the WebSocket server using Socket.io
 const http = require("http");
@@ -53,8 +52,10 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: [`https://localhost:3000`, "https://iseevision.fr","http://localhost:3000"],
-    methods: ["GET", "POST"],
+    origin: ["http://localhost:3000", "https://iseevision.fr"], // Ajoutez l'origine de votre application React
+    methods: ["GET", "POST"], // Ajoutez les méthodes HTTP nécessaires
+    credentials: true, // Assurez-vous que cette option est définie sur true
+    sameSite: "none",
   },
 });
 
@@ -108,17 +109,22 @@ app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
  * * LiveChat
  */
 
+io.use(ioCookieParser());
 
-// Adaptation du middleware Express pour socket.io
-const adaptMiddleware = (middleware) => {
-  return (socket, next) => {
-    const req = socket.request;
-    const res = socket.request.res;
-    middleware(req, res, next);
-  };
-};
-// Utilisation du middleware isAuth avec socket.io
-// io.use(adaptMiddleware(isAuth));
+
+//Utilisation du middleware isAuth avec socket.io
+io.use(async (socket, next) => {
+  const socketId = socket.id;
+  console.log("socketId : ", socketId);
+  const error = await isAuthSocketMiddleware(socket, next);
+
+  console.log(error);
+if (error)
+{
+  io.to(socketId).emit("rafraichir-token");
+}
+
+});
 
 io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante
