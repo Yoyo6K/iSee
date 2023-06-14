@@ -419,7 +419,7 @@ exports.unbanUser = async (req, res) => {
     return res.status(403).send({ error: 'Only admins can unban users' });
   }
 
-  const { userId } = req.params;
+  const { userId } = req.body;
 
   try {
     // Mettre à jour l'utilisateur avec la date de fin du bannissement à null
