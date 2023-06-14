@@ -13,7 +13,8 @@ const {
   logoutUsers,
   verificationUsers,
   channelUsers,
-  banUser
+  banUser,
+  unbanUser
 } = require("../controllers/userController");
 
 router.get("/getAll", isAuth, isAdmin, getAllUsers);
@@ -57,6 +58,8 @@ router.put(
 );
 
 router.post("/banUser", isAuth, isAdmin, banUser);
+
+router.put("/unbanUser/:userId", isAuth, isAdmin, unbanUser);
 
 router.delete("/delete", isAuth, deleteUsers);
 

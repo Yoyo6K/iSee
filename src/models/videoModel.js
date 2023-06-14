@@ -56,10 +56,6 @@ const videoModel = new Schema({
     type: Number,
     default: 0,
   },
-  banUntil: {
-    type: Date,
-    default: null
-  },
   uploadAt: {
     type: Date,
     default: Date.now,

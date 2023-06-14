@@ -268,9 +268,13 @@
                     "type": "string",
                     "format": "date-time",
                     "description": "The date until the user is banned"
+                  },
+                  "banReason": {
+                    "type": "string",
+                    "description": "The reason for the ban"
                   }
                 },
-                "required": ["userId", "banUntil"]
+                "required": ["userId", "banUntil", "banReason"]
               }
             }
           }
@@ -297,6 +301,41 @@
           },
           "500": {
             "description": "Error banning user"
+          }
+        }
+      }
+    },    
+    "/api/users/unbanUser/{userId}": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Unban a user",
+        "security": [
+          {
+            "XSRF-Token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the user to unban",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Error unbanning user"
           }
         }
       }

@@ -41,6 +41,14 @@ const userModel = new Schema({
     type: Boolean,
     default: false,
   },
+  banUntil: {
+    type: Date,
+    default: null
+  },
+  banReason: {
+    type: String,
+    default: null
+  },
   createdAt: {
     type: Date,
     default: Date.now,

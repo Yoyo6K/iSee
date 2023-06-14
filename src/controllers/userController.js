@@ -100,7 +100,7 @@ exports.loginUsers = async (req, res) => {
 
         // Vérifier si l'utilisateur est banni
         if (user.banUntil && user.banUntil > Date.now()) {
-          return res.status(403).send({ message: 'This user is currently banned' });
+          return res.status(403).send({ message: 'This user is currently banned', banReason: user.banReason });
         }
 
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
@@ -375,15 +375,19 @@ exports.updateUsers = async (req, res) => {
 };
 
 exports.banUser = async (req, res) => {
-  
+
   if (!req.user.isAdmin) {
     return res.status(403).send({ error: 'Only admins can ban users' });
   }
 
-  const { userId, banUntil } = req.body;
+  const { userId, banUntil, banReason } = req.body;
 
   if (!userId || !banUntil) {
     return res.status(400).send({ error: 'Missing userId or banUntil' });
+  }
+
+  if (!banReason) {
+    return res.status(400).send({ error: 'Missing banReason' });
   }
 
   const banDate = new Date(banUntil);
@@ -397,11 +401,29 @@ exports.banUser = async (req, res) => {
       return res.status(404).send({ error: 'User not found' });
     }
 
-    await User.findByIdAndUpdate(userId, { banUntil });
+    await User.findByIdAndUpdate(userId, { banUntil, banReason });
 
     res.send({ message: 'User has been banned successfully' });
   } catch (error) {
     res.status(500).send({ error: error.message });
+  }
+};
+
+exports.unbanUser = async (req, res) => {
+
+  if (!req.user.isAdmin) {
+    return res.status(403).send({ error: 'Only admins can unban users' });
+  }
+
+  const userId = req.params.userId;
+
+  try {
+    // Mettre à jour l'utilisateur avec la date de fin du bannissement à null
+    await User.findByIdAndUpdate(userId, { banUntil: null, banReason: null });
+
+    res.send({ message: 'User has been unbanned successfully' });
+  } catch (error) {
+    res.status(500).send({ error: 'Error unbanning user' });
   }
 };
 
