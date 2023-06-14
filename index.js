@@ -115,7 +115,6 @@ const connectedUsers = {};
 io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante
   socket.on("join video chat", async (videoId, user) => {
-    console.log(`user joined chat for video ${videoId}`);
     socket.join(`video-${videoId}`);
 
     const { error } = await isAuthSocketMiddleware(socket); // vérification si l'utilisateur est connecté.
@@ -145,7 +144,7 @@ io.on("connection", (socket) => {
     io.to(room).emit("user joined", users);
   });
 
-  socket.on("disconnect", (videoId) => {
+  socket.on("leave video chat", (videoId) => {
     const room = `video-${videoId}`;
     if (connectedUsers.hasOwnProperty(socket.id)) {
       delete connectedUsers[socket.id];

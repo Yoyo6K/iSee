@@ -23,7 +23,7 @@ const limits = {
 };
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    console.log("destination : ", destination);
+
     // if (destination === destServer) {
     //   fs.access(cheminRepertoireMount, fs.constants.F_OK, (err) => {
     //     if (err) {
@@ -48,7 +48,7 @@ const storage = multer.diskStorage({
     }
 
     if (file.fieldname == "logo") {
-      fs.mkdirSync(`${destination}/users`, {
+      fs.mkdirSync(`${destination}/users/logos`, {
         recursive: true,
       });
     }
@@ -79,7 +79,6 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     req.locals = req.locals || {}; // Créer l'objet req.locals s'il n'existe pas
     req.locals.uploadId = req.locals.uploadId || mongoose.Types.ObjectId(); // Générer l'UUID si nécessaire
-
     cb(null, req.locals.uploadId + path.extname(file.originalname));
   },
 });

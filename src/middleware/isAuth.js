@@ -22,13 +22,8 @@ exports.isAuthSocketMiddleware = async (socket, next) => {
     const { isAuthenticated, error } = await checkAuthentication(req, res,"socket");
 
     if (isAuthenticated) {
-      console.log("Authentication")
       return {message: "Authentication"};
     } else {
-      
-      if (socket.event === "disconnect") {
-      Console.log("event disconnected")
-      }
         return { error: error}
     }
   } catch (error) {

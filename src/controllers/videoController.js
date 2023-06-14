@@ -354,7 +354,7 @@ exports.uploadVideo = async (req, res) => {
     const thumbnailPath = thumbnailPathLocal.replace(destServer, FILE_URL_PATH);
     
     const uploadId = mongoose.Types.ObjectId(uploadIdSTR).toString();
-    console.log(req);
+  
 
     const newVideo = new Video({
       _id: uploadId,
@@ -368,6 +368,7 @@ exports.uploadVideo = async (req, res) => {
     });
     
     const savedVideo = await newVideo.save();
+    
 
     const formattedVideo = formatVideo(savedVideo);
 

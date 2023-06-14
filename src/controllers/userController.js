@@ -176,97 +176,107 @@ exports.loginUsers = async (req, res) => {
 };
 
 exports.registerUsers = async (req, res) => {
+
+
   const { error } = validateRegister(req.body);
 
   if (error) {
-    console.log(error);
+    console.log("validation error :",error);
     return res.send(error.details);
   }
 
-  // Vérifiez si l'adresse e-mail est déjà utilisée
-  User.findOne({ email: req.body.email }, async (err, user) => {
-    if (err) {
-      res.status(500).send(err);
-    } else if (user) {
-      res.status(400).send({ message: "This email address is already in use" });
-    } else {
-      // Hash le mot de passe de l'utilisateur
-      bcrypt.hash(req.body.password, 10, async (err, hash) => {
-        if (err) {
-          res.status(500).send(err);
-        } else {
-          // Créez un nouvel utilisateur avec les données envoyées dans la requête et le mot de passe hashé
-          const newUser = new User({
-            id: req.body.id,
-            username: req.body.username,
-            email: req.body.email,
-            password: hash,
-            isAdmin: req.body.isAdmin,
-            token: null,
-            expiresAt: null,
-            isValidated: false,
-          });
-          if (
-            req.files &&
-            req.files["logo"] &&
-            req.files["logo"][0]?.path !== undefined
-          ) {
-            newUser.logo_path = req.files["logo"][0].path;
-          }
-          // Enregistrez l'utilisateur dans la base de données
-          newUser.save(async (err, user) => {
-            if (err) {
-              console.error(err);
-              res.status(500).send(err);
-            } else {
-              const token = crypto.randomBytes(64).toString("base64");
+  try {
 
-              await User.findByIdAndUpdate(user._id, {
-                token: token,
-              });
 
-              let transporter = nodemailer.createTransport({
-                host: emailConfig.host,
-                port: emailConfig.port,
-                auth: {
-                  user: emailConfig.auth.user,
-                  pass: emailConfig.auth.pass,
-                },
-              });
 
-              let mailOptions = {
-                from: "no-reply@iseevision.fr",
-                to: req.body.email,
-                subject: "Isee mail verification request",
-                html: emailConfig.getHtml(encodeURIComponent(token), req.body.username),
-              };
-
-              transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                  console.error("Erreur lors de l'envoi de l'e-mail :", error);
-                } else {
-                  console.log(
-                    "E-mail envoyé avec succès. Réponse du serveur :",
-                    info.response
-                  );
-                }
-              });
-
-              res.send({
-                // xsrfToken: xsrfToken,
-                user: {
-                  id: user._id,
-                  username: user.username,
-                  email: user.email,
-                  isAdmin: user.isAdmin,
-                },
-              });
+    // Vérifiez si l'adresse e-mail est déjà utilisée
+    User.findOne({ email: req.body.email }, async (err, user) => {
+      if (err) {
+        res.status(500).send(err);
+      } else if (user) {
+        res.status(400).send({ message: "This email address is already in use" });
+      } else {
+        // Hash le mot de passe de l'utilisateur
+        bcrypt.hash(req.body.password, 10, async (err, hash) => {
+          if (err) {
+            res.status(500).send(err);
+          } else {
+            // Créez un nouvel utilisateur avec les données envoyées dans la requête et le mot de passe hashé
+            const newUser = new User({
+              id: req.body.id,
+              username: req.body.username,
+              email: req.body.email,
+              password: hash,
+              isAdmin: req.body.isAdmin,
+              token: null,
+              expiresAt: null,
+              isValidated: false,
+            });
+            if (
+              req.files &&
+              req.files["logo"] &&
+              req.files["logo"][0]?.path !== undefined
+            ) {
+              newUser.logo_path = req.files["logo"][0].path;
             }
-          });
-        }
-      });
-    }
-  });
+            // Enregistrez l'utilisateur dans la base de données
+            newUser.save(async (err, user) => {
+              if (err) {
+                console.error(err);
+                res.status(500).send(err);
+              } else {
+                const token = crypto.randomBytes(64).toString("base64");
+  
+                await User.findByIdAndUpdate(user._id, {
+                  token: token,
+                });
+  
+                let transporter = nodemailer.createTransport({
+                  host: emailConfig.host,
+                  port: emailConfig.port,
+                  auth: {
+                    user: emailConfig.auth.user,
+                    pass: emailConfig.auth.pass,
+                  },
+                });
+  
+                let mailOptions = {
+                  from: "no-reply@iseevision.fr",
+                  to: req.body.email,
+                  subject: "Isee mail verification request",
+                  html: emailConfig.getHtml(encodeURIComponent(token), req.body.username),
+                };
+  
+                transporter.sendMail(mailOptions, (error, info) => {
+                  if (error) {
+                    console.error("Erreur lors de l'envoi de l'e-mail :", error);
+                  } else {
+                    console.log(
+                      "E-mail envoyé avec succès. Réponse du serveur :",
+                      info.response
+                    );
+                  }
+                });
+  
+                res.send({
+                  // xsrfToken: xsrfToken,
+                  user: {
+                    id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    isAdmin: user.isAdmin,
+                  },
+                });
+              }
+            });
+          }
+        });
+      }
+    });
+  } catch(error)
+  {
+    console.error("erreur : ",error);
+  }
 };
 
 exports.updateUsers = async (req, res) => {
@@ -460,8 +470,7 @@ exports.logoutUsers = async (req, res) => {
 exports.verificationUsers = async (req, res) => {
   const tokenVar = req.query.token;
 
-  console.log("token", tokenVar);
-
+  
   // Vérifier si le token existe
   User.findOne({ token: tokenVar }, async (err, user) => {
     if (err) {
