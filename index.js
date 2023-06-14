@@ -111,33 +111,66 @@ app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 io.use(ioCookieParser());
 
-
-//Utilisation du middleware isAuth avec socket.io
-io.use(async (socket, next) => {
-  const socketId = socket.id;
-  console.log("socketId : ", socketId);
-  const error = await isAuthSocketMiddleware(socket, next);
-
-  console.log(error);
-if (error)
-{
-  io.to(socketId).emit("rafraichir-token");
-}
-
-});
-
+const connectedUsers = {};
 io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante
-  socket.on("join video chat", (videoId) => {
+  socket.on("join video chat", async (videoId, user) => {
     console.log(`user joined chat for video ${videoId}`);
     socket.join(`video-${videoId}`);
+
+    const { error } = await isAuthSocketMiddleware(socket); // vérification si l'utilisateur est connecté.
+
+    if (error) {
+      io.to(socket.id).emit("rafraichir-token");
+      socket.leave(`video-${videoId}`);
+      socket.disconnect();
+      return;
+    }
+
+    connectedUsers[socket.id] = {
+      videoid: videoId,
+      id: user.id,
+      username: user.username,
+      logo_path: user.logo_path,
+    };
+    const room = `video-${videoId}`;
+    const users = Object.values(connectedUsers).map((user) => {
+      return {
+        videoid: user.videoid,
+        id: user.id,
+        username: user.username,
+        logo_path: user.logo_path,
+      };
+    });
+    io.to(room).emit("user joined", users);
+  });
+
+  socket.on("disconnect", (videoId) => {
+    const room = `video-${videoId}`;
+    if (connectedUsers.hasOwnProperty(socket.id)) {
+      delete connectedUsers[socket.id];
+    }
+    if (Object.keys(connectedUsers).length > 0) {
+      // Émettre l'événement "user left" avec les utilisateurs mis à jour
+      const users = Object.values(connectedUsers).map((user) => {
+        return {
+          videoid: user.videoid,
+          id: user.id,
+          username: user.username,
+          logo_path: user.logo_path,
+        };
+      });
+
+      io.to(room).emit("user left", users);
+    } else {
+      io.to(room).emit("user left", []);
+    }
+    socket.leave(`video-${videoId}`);
   });
 
   // Écouter les messages de chat
   socket.on("chat message", (data) => {
-    console.log(`message received for video ${data.videoId}: ${data.message}`);
     const { message, timestamp, author } = data;
-    console.log("timestamp", timestamp, author);
     const newMessage = {
       content: message,
       timestamp: timestamp,
@@ -165,5 +198,3 @@ server.listen(port, () => {
     )
   );
 });
-
-// console.log(process.env);

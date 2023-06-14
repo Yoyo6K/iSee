@@ -1,6 +1,7 @@
 const User = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const { Console } = require("console");
 
 
 exports.isAuthSocketMiddleware = async (socket, next) => {
@@ -10,6 +11,7 @@ exports.isAuthSocketMiddleware = async (socket, next) => {
   // Ajoutez les propriétés `req` et `res` à l'objet `socket` pour y accéder ultérieurement
   socket.req = req;
   socket.res = res;
+
 
   try {
     // Votre logique d'authentification ici
@@ -21,13 +23,17 @@ exports.isAuthSocketMiddleware = async (socket, next) => {
 
     if (isAuthenticated) {
       console.log("Authentication")
-      return next();
+      return {message: "Authentication"};
     } else {
+      
+      if (socket.event === "disconnect") {
+      Console.log("event disconnected")
+      }
         return { error: error}
     }
   } catch (error) {
     console.log(error);
-    return next(new Error(error));
+    return { error: error };
   }
 };
 
