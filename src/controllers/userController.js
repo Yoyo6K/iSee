@@ -99,9 +99,9 @@ exports.loginUsers = async (req, res) => {
         }
 
         // Vérifier si l'utilisateur est banni
-        if (user.banUntil && user.banUntil > Date.now()) {
-          return res.status(403).send({ message: 'This user is currently banned', banReason: user.banReason });
-        }
+        if (user.banUntil && new Date(user.banUntil).getTime() > Date.now()) {
+          return res.status(403).send({ message: 'This user is currently banned. Reason: ' + user.banReason });
+      }      
 
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
         bcrypt.compare(
