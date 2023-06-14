@@ -98,6 +98,11 @@ exports.loginUsers = async (req, res) => {
           return res.status(401).json({ message: "Account not validated" });
         }
 
+        // Vérifier si l'utilisateur est banni
+        if (user.banUntil && user.banUntil > Date.now()) {
+          return res.status(403).send({ message: 'This user is currently banned' });
+        }
+
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
         bcrypt.compare(
           req.body.password,
@@ -366,6 +371,37 @@ exports.updateUsers = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ error });
+  }
+};
+
+exports.banUser = async (req, res) => {
+  
+  if (!req.user.isAdmin) {
+    return res.status(403).send({ error: 'Only admins can ban users' });
+  }
+
+  const { userId, banUntil } = req.body;
+
+  if (!userId || !banUntil) {
+    return res.status(400).send({ error: 'Missing userId or banUntil' });
+  }
+
+  const banDate = new Date(banUntil);
+  if (isNaN(banDate) || banDate < new Date()) {
+    return res.status(400).send({ error: 'banUntil must be a valid date in the future' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    await User.findByIdAndUpdate(userId, { banUntil });
+
+    res.send({ message: 'User has been banned successfully' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
   }
 };
 
