@@ -10,6 +10,7 @@ const {
   registerUsers,
   updateUsers,
   deleteUsers,
+  deleteUserByID,
   logoutUsers,
   verificationUsers,
   channelUsers,
@@ -59,9 +60,11 @@ router.put(
 
 router.post("/banUser", isAuth, isAdmin, banUser);
 
-router.put("/unbanUser/:userId", isAuth, isAdmin, unbanUser);
+router.put("/unbanUser", isAuth, isAdmin, unbanUser);
 
 router.delete("/delete", isAuth, deleteUsers);
+
+router.delete("/delete/:userId", isAuth, isAdmin, deleteUserByID);
 
 router.post("/verification", verificationUsers);
 

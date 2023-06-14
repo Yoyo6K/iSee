@@ -394,6 +394,7 @@ exports.banUser = async (req, res) => {
   }
 
   const banDate = new Date(banUntil);
+  console.log(banUntil);
   if (isNaN(banDate) || banDate < new Date()) {
     return res.status(400).send({ error: 'banUntil must be a valid date in the future' });
   }
@@ -418,7 +419,7 @@ exports.unbanUser = async (req, res) => {
     return res.status(403).send({ error: 'Only admins can unban users' });
   }
 
-  const userId = req.params.userId;
+  const { userId } = req.params;
 
   try {
     // Mettre à jour l'utilisateur avec la date de fin du bannissement à null
@@ -451,6 +452,17 @@ exports.deleteUsers = async (req, res) => {
     );
   } catch (error) {
     res.status(400).json({ error: "You don't have the permission" });
+  }
+};
+
+exports.deleteUserByID = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const user = await User.deleteOne({ _id: userId });
+    res.status(200).send({message: `${user.username} a bien été supprimé`});
+  } catch (error) {
+    res.status(400).json({ error: error });
   }
 };
 
