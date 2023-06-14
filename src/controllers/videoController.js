@@ -5,6 +5,7 @@ const EnumVideo = {
   Private: "Private",
   Public: "Public",
   Unlisted: "Unlisted",
+  Blocked: "Blocked",
 };
 const formatVideo = (video) => {
   return {
@@ -76,7 +77,7 @@ exports.getAllVideosAdmin = async (req, res) => {
       .populate("ownerId")
       .skip(offset)
       .limit(itemsPerPage);
-      
+
     // Créer un tableau pour stocker les résultats formatés
     let formattedVideos = [];
 
@@ -168,12 +169,12 @@ exports.getUserVideos = async (req, res) => {
 exports.searchVideos = async (req, res) => {
   const query = req.params.query;
   const defaultState = EnumVideo.Public;
-   const { page, perPage } = req.query; // Récupérer les paramètres de pagination
+  const { page, perPage } = req.query; // Récupérer les paramètres de pagination
 
-   const pageNumber = parseInt(page) || 1;
-   const itemsPerPage = parseInt(perPage) || 1;
+  const pageNumber = parseInt(page) || 1;
+  const itemsPerPage = parseInt(perPage) || 1;
 
-   const offset = (pageNumber - 1) * itemsPerPage;
+  const offset = (pageNumber - 1) * itemsPerPage;
 
   try {
     const videos = await Video.find({
@@ -293,7 +294,7 @@ exports.dislikeVideo = async (req, res) => {
 
     await video.save();
 
-      const formattedVideo = formatVideo(video);
+    const formattedVideo = formatVideo(video);
 
     res.status(200).send(formattedVideo);
   } catch (error) {
@@ -318,18 +319,16 @@ exports.changeVideoState = async (req, res) => {
     }
 
     if (video.ownerId?._id?.toString() !== userId) {
-      return res
-        .status(403)
-        .send({
-          error: "You do not have permission to change the state of this video",
-        });
+      return res.status(403).send({
+        error: "You do not have permission to change the state of this video",
+      });
     }
 
     video.state = newState;
 
     await video.save();
 
-     const formattedVideo = formatVideo(video);
+    const formattedVideo = formatVideo(video);
 
     res.status(200).send(formattedVideo);
   } catch (error) {
@@ -341,18 +340,18 @@ exports.uploadVideo = async (req, res) => {
   try {
     const destServer = process.env.DEST_SERVER;
 
-    const FILE_URL_PATH = process.env.FILE_URL
+    const FILE_URL_PATH = process.env.FILE_URL;
 
     const uploadIdSTR = req.locals.uploadId;
- 
+
     const videoPathLocal = req.files["video"][0].path;
     const videoPath = videoPathLocal.replace(destServer, FILE_URL_PATH);
     const videoSize = req.files["video"][0].size;
 
     const thumbnailPathLocal = req.files["thumbnail"][0].path;
-    
+
     const thumbnailPath = thumbnailPathLocal.replace(destServer, FILE_URL_PATH);
-    
+
     const uploadId = mongoose.Types.ObjectId(uploadIdSTR).toString();
   
 
@@ -364,9 +363,9 @@ exports.uploadVideo = async (req, res) => {
       thumbnail_path: thumbnailPath,
       video_path: videoPath,
       size: videoSize,
-      state: req.body.state
+      state: req.body.state,
     });
-    
+
     const savedVideo = await newVideo.save();
     
 
@@ -384,7 +383,7 @@ exports.updateVideo = async (req, res) => {
     const videoId = req.params.videoId;
     const userId = req.user._id;
 
-    const video = await Video.findById(videoId)
+    const video = await Video.findById(videoId);
 
     if (!video) {
       return res.status(404).send({ error: "Video not found" });
@@ -402,7 +401,6 @@ exports.updateVideo = async (req, res) => {
 
     const formattedVideo = formatVideo(updatedVideo);
 
-
     res.status(200).send(formattedVideo);
   } catch (error) {
     res.status(400).json({ error });
@@ -410,26 +408,103 @@ exports.updateVideo = async (req, res) => {
 };
 
 exports.deleteVideo = async (req, res) => {
-try {
-  const videoId = req.params.videoId;
-  const userId = req.user._id;
+  try {
+    const videoId = req.params.videoId;
+    const userId = req.user._id;
 
-const video = await Video.findById(videoId);
+    const video = await Video.findById(videoId);
 
-if (!video) {
-  return res.status(404).send({ error: "Video not found" });
-}
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
 
-if (
-  video.ownerId.toString() !== userId.toString() &&
-  req.user.isAdmin !== true
-) {
-  return res.status(403).send({ error: "You don't have the permission" });
-}
+    if (
+      video.ownerId.toString() !== userId.toString() &&
+      req.user.isAdmin !== true
+    ) {
+      return res.status(403).send({ error: "You don't have the permission" });
+    }
 
-await Video.findByIdAndDelete(videoId);
-  res.status(200).send({ message: "Video deleted" });
-} catch (error) {
-  res.status(500).send({ error: "Error deleting video" });
-}
+    await Video.findByIdAndDelete(videoId);
+    res.status(200).send({ message: "Video deleted" });
+  } catch (error) {
+    res.status(500).send({ error: "Error deleting video" });
+  }
+};
+
+exports.adminBlockVideo = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const newState = EnumVideo.Blocked;
+
+    if (!Object.values(EnumVideo).includes(newState)) {
+      return res.status(400).send({ error: "Invalid state value" });
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
+
+    video.state = newState;
+
+    await video.save();
+
+    res.status(200).send({ message: `Vidéo bloquée` });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: "Error changing video state" });
+  }
+};
+
+exports.adminUnblockVideo = async (req, res) => {
+  try {
+    const { videoId } = req.params;
+    const newState = EnumVideo.Private;
+
+    if (!Object.values(EnumVideo).includes(newState)) {
+      return res.status(400).send({ error: "Invalid state value" });
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
+
+    video.state = newState;
+
+    await video.save();
+
+    res.status(200).send({ message: `Vidéo débloquée` });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: "Error changing video state" });
+  }
+};
+
+exports.adminDeleteVideo = async (req, res) => {
+  try {
+    const videoId = req.params.videoId;
+    const userId = req.user._id;
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+      return res.status(404).send({ error: "Video not found" });
+    }
+
+    if (
+      video.ownerId.toString() !== userId.toString() &&
+      req.user.isAdmin !== true
+    ) {
+      return res.status(403).send({ error: "You don't have the permission" });
+    }
+
+    await Video.findByIdAndDelete(videoId);
+    res.status(200).send({ message: "Video deleted" });
+  } catch (error) {
+    res.status(500).send({ error: "Error deleting video" });
+  }
 };

@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const {isAuth,checkAuthStatus} = require("../middleware/isAuth");
+const { isAuth, checkAuthStatus } = require("../middleware/isAuth");
 const isAdmin = require("../middleware/isAdmin");
 
 const {
@@ -15,7 +15,10 @@ const {
   searchVideos,
   likeVideo,
   dislikeVideo,
-  changeVideoState
+  changeVideoState,
+  adminBlockVideo,
+  adminUnblockVideo,
+  adminDeleteVideo,
 } = require("../controllers/videoController");
 const fileUpload = require("../middleware/fileUpload");
 
@@ -42,11 +45,16 @@ router.post(
 );
 router.put("/state/:videoId", isAuth, changeVideoState);
 
-router.put('/addView/:id', incrementViewCount);
+router.put("/admin/block/:videoId", isAuth, isAdmin, adminBlockVideo);
+router.put("/admin/unblock/:videoId", isAuth, isAdmin, adminUnblockVideo);
+
+router.put("/addView/:id", incrementViewCount);
 
 router.put("/update/:videoId", isAuth, updateVideo);
 
 router.delete("/delete/:videoId", isAuth, deleteVideo);
+
+router.delete("/admin/delete/:videoId", isAuth, isAdmin, adminDeleteVideo);
 
 router.get("/:id", getVideo);
 
