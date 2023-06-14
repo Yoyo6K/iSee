@@ -243,6 +243,103 @@
         }
       }
     },
+    "/api/users/banUser": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Ban a user",
+        "security": [
+          {
+            "XSRF-Token": []
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "string",
+                    "description": "ID of the user to ban"
+                  },
+                  "banUntil": {
+                    "type": "string",
+                    "format": "date-time",
+                    "description": "The date until the user is banned"
+                  },
+                  "banReason": {
+                    "type": "string",
+                    "description": "The reason for the ban"
+                  }
+                },
+                "required": ["userId", "banUntil", "banReason"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User has been banned successfully"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Only admins can ban users"
+          },
+          "500": {
+            "description": "Error banning user"
+          }
+        }
+      }
+    },    
+    "/api/users/unbanUser/{userId}": {
+      "put": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Unban a user",
+        "security": [
+          {
+            "XSRF-Token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the user to unban",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Error unbanning user"
+          }
+        }
+      }
+    },    
     "/api/comments/video/{videoId}": {
       "get": {
         "tags": [

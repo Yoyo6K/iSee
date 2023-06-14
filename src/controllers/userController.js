@@ -98,6 +98,11 @@ exports.loginUsers = async (req, res) => {
           return res.status(401).json({ message: "Account not validated" });
         }
 
+        // Vérifier si l'utilisateur est banni
+        if (user.banUntil && user.banUntil > Date.now()) {
+          return res.status(403).send({ message: 'This user is currently banned', banReason: user.banReason });
+        }
+
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
         bcrypt.compare(
           req.body.password,
@@ -233,7 +238,7 @@ exports.registerUsers = async (req, res) => {
                 from: "no-reply@iseevision.fr",
                 to: req.body.email,
                 subject: "Isee mail verification request",
-                html: emailConfig.getHtml(encodeURIComponent(token)),
+                html: emailConfig.getHtml(encodeURIComponent(token), req.body.username),
               };
 
               transporter.sendMail(mailOptions, (error, info) => {
@@ -366,6 +371,59 @@ exports.updateUsers = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.status(400).json({ error });
+  }
+};
+
+exports.banUser = async (req, res) => {
+
+  if (!req.user.isAdmin) {
+    return res.status(403).send({ error: 'Only admins can ban users' });
+  }
+
+  const { userId, banUntil, banReason } = req.body;
+
+  if (!userId || !banUntil) {
+    return res.status(400).send({ error: 'Missing userId or banUntil' });
+  }
+
+  if (!banReason) {
+    return res.status(400).send({ error: 'Missing banReason' });
+  }
+
+  const banDate = new Date(banUntil);
+  if (isNaN(banDate) || banDate < new Date()) {
+    return res.status(400).send({ error: 'banUntil must be a valid date in the future' });
+  }
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).send({ error: 'User not found' });
+    }
+
+    await User.findByIdAndUpdate(userId, { banUntil, banReason });
+
+    res.send({ message: 'User has been banned successfully' });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+exports.unbanUser = async (req, res) => {
+
+  if (!req.user.isAdmin) {
+    return res.status(403).send({ error: 'Only admins can unban users' });
+  }
+
+  const userId = req.params.userId;
+
+  try {
+    // Mettre à jour l'utilisateur avec la date de fin du bannissement à null
+    await User.findByIdAndUpdate(userId, { banUntil: null, banReason: null });
+
+    res.send({ message: 'User has been unbanned successfully' });
+  } catch (error) {
+    res.status(500).send({ error: 'Error unbanning user' });
   }
 };
 

@@ -1,18 +1,47 @@
-function generateVerificationEmail(token) {
+function generateVerificationEmail(token, username) {
   return `<!DOCTYPE html>
-         <html>
-         <head>
-           <meta charset="UTF-8">
-           <title>Vérification de l'adresse e-mail</title>
-         </head>
-         <body>
-           <h1>Vérification de l'adresse e-mail</h1>
-           <p>Merci de vous être inscrit sur notre site. Avant de pouvoir accéder à votre compte, nous devons vérifier votre adresse e-mail.</p>
-           <p>Veuillez cliquer sur le lien ci-dessous pour valider votre adresse e-mail :</p>
-           <p><a href="https://iseevision.fr/verification?token=${token}">Valider mon adresse e-mail</a></p>
-           <p>Si vous n'avez pas créé de compte sur notre site, veuillez ignorer cet e-mail.</p>
-         </body>
-         </html>`;
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Email Address Verification</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        padding: 20px;
+      }
+      h1 {
+        color: #333333;
+        font-size: 24px;
+      }
+      p {
+        color: #666666;
+        font-size: 16px;
+      }
+      a {
+        color: #ffffff;
+        background-color: #007bff;
+        border-radius: 5px;
+        padding: 10px 20px;
+        text-decoration: none;
+      }
+      a:hover {
+        background-color: #0099ff;
+      }
+      .username {
+        color: #007bff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Email Address Verification</h1>
+    <p>Thank you for signing up on our website <span class="username">${username}</span> ! Before you can access your account, we need to verify your email address.</p>
+    <p>Please click on the link below to validate your email address:</p><br/>
+    <p><a href="https://iseevision.fr/verification?token=${token}">Verify my Account</a></p><br/>
+    <p>If you didn't create an account on our website, please ignore this email.</p>
+    <p>iSee</p>
+  </body>
+  </html>`;
 }
 
 const emailConfig = {
@@ -22,7 +51,7 @@ const emailConfig = {
     user: "no-reply@iseevision.fr",
     pass: "5&g9G5u6:#dZDdC6sY{",
   },
-  getHtml: (token) => generateVerificationEmail(token),
+  getHtml: (token, username) => generateVerificationEmail(token, username),
 };
 
 module.exports = emailConfig;
