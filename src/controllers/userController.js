@@ -101,8 +101,6 @@ exports.loginUsers = async (req, res) => {
         const dateActuelle = Date.now();
         const dateBanissement = new Date(user.banUntil).getTime();
 
-        console.log(dateActuelle, dateBanissement);
-
         // Vérifier si l'utilisateur est banni
         if (user.banUntil && dateBanissement > dateActuelle) {
           return res.status(403).send({ message: 'This user is currently banned', banReason: user.banReason });
