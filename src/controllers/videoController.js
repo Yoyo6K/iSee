@@ -340,32 +340,40 @@ exports.changeVideoState = async (req, res) => {
 exports.uploadVideo = async (req, res) => {
   try {
     const destServer = process.env.DEST_SERVER;
+
     const FILE_URL_PATH = process.env.FILE_URL
 
     const uploadIdSTR = req.locals.uploadId;
  
     const videoPathLocal = req.files["video"][0].path;
     const videoPath = videoPathLocal.replace(destServer, FILE_URL_PATH);
+    const videoSize = req.files["video"][0].size;
 
     const thumbnailPathLocal = req.files["thumbnail"][0].path;
+    
     const thumbnailPath = thumbnailPathLocal.replace(destServer, FILE_URL_PATH);
-
+    
     const uploadId = mongoose.Types.ObjectId(uploadIdSTR).toString();
+    console.log(req);
 
     const newVideo = new Video({
       _id: uploadId,
+      title: req.body.title,
+      description: req.body.description,
       ownerId: req.user._id,
       thumbnail_path: thumbnailPath,
       video_path: videoPath,
-      // size: req.file.size,
+      size: videoSize,
+      state: req.body.state
     });
-
+    
     const savedVideo = await newVideo.save();
 
     const formattedVideo = formatVideo(savedVideo);
 
     res.status(201).send(formattedVideo);
   } catch (error) {
+    console.error(error);
     res.status(500).send({ error: "Error uploading video" });
   }
 };
