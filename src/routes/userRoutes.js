@@ -60,7 +60,7 @@ router.put(
 
 router.post("/banUser", isAuth, isAdmin, banUser);
 
-router.put("/unbanUser", isAuth, isAdmin, unbanUser);
+router.put("/unbanUser/:userId", isAuth, isAdmin, unbanUser);
 
 router.delete("/delete", isAuth, deleteUsers);
 
