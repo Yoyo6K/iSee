@@ -98,8 +98,13 @@ exports.loginUsers = async (req, res) => {
           return res.status(401).json({ message: "Account not validated" });
         }
 
+        const dateActuelle = Date.now();
+        const dateBanissement = new Date(user.banUntil).getTime();
+
+        console.log(dateActuelle, dateBanissement);
+
         // Vérifier si l'utilisateur est banni
-        if (user.banUntil && user.banUntil > Date.now()) {
+        if (user.banUntil && dateBanissement > dateActuelle) {
           return res.status(403).send({ message: 'This user is currently banned', banReason: user.banReason });
         }
 
