@@ -18,10 +18,14 @@ const videoModel = new Schema({
   description: {
     type: String,
   },
-  views: {
+  viewsCount: {
     type: Number,
     default: 0,
   },
+  views: [{
+    date: { type: Date, default: Date.now },
+    count: { type: Number, default: 0 },
+  }],  
   likesCount: {
     type: Number,
     default: 0,

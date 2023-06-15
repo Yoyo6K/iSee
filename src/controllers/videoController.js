@@ -27,6 +27,7 @@ const formatVideo = (video) => {
     uploadAt: video.uploadAt,
     video_path: video.video_path,
     views: video.views,
+    viewsCount: video.viewsCount,
   };
 };
 
@@ -219,14 +220,30 @@ exports.incrementViewCount = async (req, res) => {
     if (!video) {
       return res.status(404).send({ error: "Video not found" });
     }
-    video.views += 1;
+    
+    // Obtenir la date actuelle à minuit (00:00:00)
+    const currentDate = new Date()
+    currentDate.setHours(0, 0, 0, 0);
 
+    // Trouver un objet de vue pour la date actuelle
+    let viewDetail = video.views.find(v => v.date.getTime() === currentDate.getTime());
+    
+    if (!viewDetail) {
+      // Si aucun objet de vue n'existe pour la date actuelle, en créer un nouveau
+      viewDetail = { date: currentDate, count: 0 };
+      video.views.push(viewDetail);
+    }
+
+    viewDetail.count++;
+    video.viewsCount++;
+    
     await video.save();
 
     const formattedVideo = formatVideo(video);
 
     res.status(200).send(formattedVideo);
   } catch (error) {
+    console.error(error);
     res.status(500).send({ error: "Error incrementing view count" });
   }
 };
