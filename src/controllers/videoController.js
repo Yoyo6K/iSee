@@ -27,6 +27,7 @@ const formatVideo = (video) => {
     uploadAt: video.uploadAt,
     video_path: video.video_path,
     views: video.views,
+    viewsCount: video.viewsCount,
   };
 };
 
@@ -226,15 +227,16 @@ exports.incrementViewCount = async (req, res) => {
     currentDate.setHours(0, 0, 0, 0);
 
     // Trouver un objet de vue pour la date actuelle
-    let view = video.views.find(v => v.date.getTime() === currentDate.getTime());
+    let viewDetail = video.views.find(v => v.date.getTime() === currentDate.getTime());
     
-    if (!view) {
+    if (!viewDetail) {
       // Si aucun objet de vue n'existe pour la date actuelle, en créer un nouveau
-      view = { date: currentDate, count: 0 };
-      video.views.push(view);
+      viewDetail = { date: currentDate, count: 0 };
+      video.views.push(viewDetail);
     }
 
-    view.count++;
+    viewDetail.count++;
+    video.viewsCount++;
     
     await video.save();
 
