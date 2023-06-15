@@ -125,7 +125,6 @@ io.on("connection", (socket) => {
       socket.disconnect();
       return;
     }
- console.log("user1 ", user);
     connectedUsers[socket.id] = {
       videoid: videoId,
       id: user.id,
@@ -134,7 +133,6 @@ io.on("connection", (socket) => {
     };
     const room = `video-${videoId}`;
     const users = Object.values(connectedUsers).map((user) => {
-      console.log("user", user);
       return {
         videoid: user.videoid,
         id: user.id,
