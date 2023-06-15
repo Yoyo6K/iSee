@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
 const emailConfig = require("../../config/Mailer");
+const fs = require("fs")
 require("dotenv").config();
 
 // Vérification si l'environment est en developpement
@@ -56,14 +57,11 @@ exports.channelUsers = async (req, res) => {
 };
 
 exports.refreshToken = async (req, res) => {
- try {
-   const isAuthenticated = req.isAuthenticated;
-
-
- } catch (error) {
-   res.status(500).send({ message: "Internal Server Error" });
- }
-
+  try {
+    const isAuthenticated = req.isAuthenticated;
+  } catch (error) {
+    res.status(500).send({ message: "Internal Server Error" });
+  }
 };
 
 exports.profileUsers = async (req, res) => {
@@ -103,7 +101,12 @@ exports.loginUsers = async (req, res) => {
 
         // Vérifier si l'utilisateur est banni
         if (user.banUntil && dateBanissement > dateActuelle) {
-          return res.status(403).send({ message: 'This user is currently banned', banReason: user.banReason });
+          return res
+            .status(403)
+            .send({
+              message: "This user is currently banned",
+              banReason: user.banReason,
+            });
         }
 
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
@@ -179,25 +182,22 @@ exports.loginUsers = async (req, res) => {
 };
 
 exports.registerUsers = async (req, res) => {
-
-
   const { error } = validateRegister(req.body);
 
   if (error) {
-    console.log("validation error :",error);
+    console.log("validation error :", error);
     return res.send(error.details);
   }
 
   try {
-
-
-
     // Vérifiez si l'adresse e-mail est déjà utilisée
     User.findOne({ email: req.body.email }, async (err, user) => {
       if (err) {
         res.status(500).send(err);
       } else if (user) {
-        res.status(400).send({ message: "This email address is already in use" });
+        res
+          .status(400)
+          .send({ message: "This email address is already in use" });
       } else {
         // Hash le mot de passe de l'utilisateur
         bcrypt.hash(req.body.password, 10, async (err, hash) => {
@@ -229,11 +229,11 @@ exports.registerUsers = async (req, res) => {
                 res.status(500).send(err);
               } else {
                 const token = crypto.randomBytes(64).toString("base64");
-  
+
                 await User.findByIdAndUpdate(user._id, {
                   token: token,
                 });
-  
+
                 let transporter = nodemailer.createTransport({
                   host: emailConfig.host,
                   port: emailConfig.port,
@@ -242,17 +242,23 @@ exports.registerUsers = async (req, res) => {
                     pass: emailConfig.auth.pass,
                   },
                 });
-  
+
                 let mailOptions = {
                   from: "no-reply@iseevision.fr",
                   to: req.body.email,
                   subject: "Isee mail verification request",
-                  html: emailConfig.getHtml(encodeURIComponent(token), req.body.username),
+                  html: emailConfig.getHtml(
+                    encodeURIComponent(token),
+                    req.body.username
+                  ),
                 };
-  
+
                 transporter.sendMail(mailOptions, (error, info) => {
                   if (error) {
-                    console.error("Erreur lors de l'envoi de l'e-mail :", error);
+                    console.error(
+                      "Erreur lors de l'envoi de l'e-mail :",
+                      error
+                    );
                   } else {
                     console.log(
                       "E-mail envoyé avec succès. Réponse du serveur :",
@@ -260,7 +266,7 @@ exports.registerUsers = async (req, res) => {
                     );
                   }
                 });
-  
+
                 res.send({
                   // xsrfToken: xsrfToken,
                   user: {
@@ -276,9 +282,8 @@ exports.registerUsers = async (req, res) => {
         });
       }
     });
-  } catch(error)
-  {
-    console.error("erreur : ",error);
+  } catch (error) {
+    console.error("erreur : ", error);
   }
 };
 
@@ -348,6 +353,16 @@ exports.updateUsers = async (req, res) => {
       req.files["logo"][0]?.path !== undefined
     ) {
       const logoPathLocal = req.files["logo"][0].path;
+
+      // Supprimer l'ancienne photo de profil
+      if (req.user.logo_path) {
+        const previousLogoPath = req.user.logo_path.replace(
+          FILE_URL_PATH,
+          destServer
+        );
+        fs.unlinkSync(previousLogoPath);
+      }
+
       updateFields.logo_path = logoPathLocal.replace(destServer, FILE_URL_PATH);
     }
 
@@ -388,45 +403,45 @@ exports.updateUsers = async (req, res) => {
 };
 
 exports.banUser = async (req, res) => {
-
   if (!req.user.isAdmin) {
-    return res.status(403).send({ error: 'Only admins can ban users' });
+    return res.status(403).send({ error: "Only admins can ban users" });
   }
 
   const { userId, banUntil, banReason } = req.body;
 
   if (!userId || !banUntil) {
-    return res.status(400).send({ error: 'Missing userId or banUntil' });
+    return res.status(400).send({ error: "Missing userId or banUntil" });
   }
 
   if (!banReason) {
-    return res.status(400).send({ error: 'Missing banReason' });
+    return res.status(400).send({ error: "Missing banReason" });
   }
 
   const banDate = new Date(banUntil);
   console.log(banUntil);
   if (isNaN(banDate) || banDate < new Date()) {
-    return res.status(400).send({ error: 'banUntil must be a valid date in the future' });
+    return res
+      .status(400)
+      .send({ error: "banUntil must be a valid date in the future" });
   }
 
   try {
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).send({ error: 'User not found' });
+      return res.status(404).send({ error: "User not found" });
     }
 
     await User.findByIdAndUpdate(userId, { banUntil, banReason });
 
-    res.send({ message: 'User has been banned successfully' });
+    res.send({ message: "User has been banned successfully" });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }
 };
 
 exports.unbanUser = async (req, res) => {
-
   if (!req.user.isAdmin) {
-    return res.status(403).send({ error: 'Only admins can unban users' });
+    return res.status(403).send({ error: "Only admins can unban users" });
   }
 
   const { userId } = req.params;
@@ -435,9 +450,9 @@ exports.unbanUser = async (req, res) => {
     // Mettre à jour l'utilisateur avec la date de fin du bannissement à null
     await User.findByIdAndUpdate(userId, { banUntil: null, banReason: null });
 
-    res.send({ message: 'User has been unbanned successfully' });
+    res.send({ message: "User has been unbanned successfully" });
   } catch (error) {
-    res.status(500).send({ error: 'Error unbanning user' });
+    res.status(500).send({ error: "Error unbanning user" });
   }
 };
 
@@ -470,7 +485,7 @@ exports.deleteUserByID = async (req, res) => {
 
   try {
     const user = await User.deleteOne({ _id: userId });
-    res.status(200).send({message: `${user.username} a bien été supprimé`});
+    res.status(200).send({ message: `${user.username} a bien été supprimé` });
   } catch (error) {
     res.status(400).json({ error: error });
   }
@@ -485,7 +500,6 @@ exports.logoutUsers = async (req, res) => {
 exports.verificationUsers = async (req, res) => {
   const tokenVar = req.query.token;
 
-  
   // Vérifier si le token existe
   User.findOne({ token: tokenVar }, async (err, user) => {
     if (err) {
