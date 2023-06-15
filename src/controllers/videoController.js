@@ -61,7 +61,6 @@ exports.getAllVideos = async (req, res) => {
 
     res.status(200).send(formattedVideos);
   } catch (error) {
-    console.log(error);
     res.status(500).send({ error: "Error fetching all videos" });
   }
 };
