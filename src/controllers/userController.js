@@ -429,7 +429,6 @@ exports.banUser = async (req, res) => {
   }
 
   const banDate = new Date(banUntil);
-  console.log(banUntil);
   if (isNaN(banDate) || banDate < new Date()) {
     return res
       .status(400)
