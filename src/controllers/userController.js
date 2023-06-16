@@ -383,10 +383,33 @@ exports.updateUsers = async (req, res) => {
       req.files["banner"][0]?.path !== undefined
     ) {
       const bannerPathLocal = req.files["banner"][0].path;
+
+      // Supprimer l'ancienne banniere de profil si elle existe
+      if (req.user.banner_path) {
+        const previousBannerPath = req.user.banner_path.replace(
+          FILE_URL_PATH,
+          destServer
+        );
+        fs.unlinkSync(previousBannerPath);
+      }
+
       updateFields.banner_path = bannerPathLocal.replace(
         destServer,
         FILE_URL_PATH
       );
+    } else if (!req.user.banner_path) {
+      // Ajouter la banniere uniquement si l'utilisateur n'en possède pas déjà
+      if (
+        req.files &&
+        req.files["banner"] &&
+        req.files["banner"][0]?.path !== undefined
+      ) {
+        const bannerPathLocal = req.files["banner"][0].path;
+        updateFields.banner_path = bannerPathLocal.replace(
+          destServer,
+          FILE_URL_PATH
+        );
+      }
     }
 
     updateFields.updatedAt = new Date();
@@ -512,9 +535,8 @@ exports.deleteUserByID = async (req, res) => {
   const { userId } = req.params;
   const destServer = process.env.DEST_SERVER;
   const FILE_URL_PATH = process.env.FILE_URL;
-  
-  try {
 
+  try {
     const selectedUser = await User.findById(userId);
 
     if (!selectedUser) {
@@ -523,13 +545,19 @@ exports.deleteUserByID = async (req, res) => {
 
     // Supprimer le logo de l'utilisateur s'il existe
     if (selectedUser.logo_path) {
-      const logoPathLocal = selectedUser.logo_path.replace(FILE_URL_PATH, destServer);
+      const logoPathLocal = selectedUser.logo_path.replace(
+        FILE_URL_PATH,
+        destServer
+      );
       fs.unlinkSync(logoPathLocal);
     }
 
     // Supprimer la bannière de l'utilisateur si elle existe
     if (selectedUser.banner_path) {
-      const bannerPathLocal = selectedUser.banner_path.replace(FILE_URL_PATH, destServer);
+      const bannerPathLocal = selectedUser.banner_path.replace(
+        FILE_URL_PATH,
+        destServer
+      );
       fs.unlinkSync(bannerPathLocal);
     }
 
