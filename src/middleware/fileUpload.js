@@ -102,8 +102,7 @@ const fileFilter = (req, file, cb) => {
   } else if (file.fieldname === "video") {
     if (
       file.mimetype === "video/mp4" ||
-      file.mimetype === "video/mov" ||
-      file.mimetype == "video/wmv"
+      file.mimetype === "video/quicktime"
     ) {
       cb(null, true);
     } else {
