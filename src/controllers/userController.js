@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
 const emailConfig = require("../../config/Mailer");
-const fs = require("fs")
+const fs = require("fs");
 require("dotenv").config();
 
 // Vérification si l'environment est en developpement
@@ -101,12 +101,10 @@ exports.loginUsers = async (req, res) => {
 
         // Vérifier si l'utilisateur est banni
         if (user.banUntil && dateBanissement > dateActuelle) {
-          return res
-            .status(403)
-            .send({
-              message: "This user is currently banned",
-              banReason: user.banReason,
-            });
+          return res.status(403).send({
+            message: "This user is currently banned",
+            banReason: user.banReason,
+          });
         }
 
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
@@ -354,7 +352,7 @@ exports.updateUsers = async (req, res) => {
     ) {
       const logoPathLocal = req.files["logo"][0].path;
 
-      // Supprimer l'ancienne photo de profil
+      // Supprimer l'ancienne photo de profil si elle existe
       if (req.user.logo_path) {
         const previousLogoPath = req.user.logo_path.replace(
           FILE_URL_PATH,
@@ -364,6 +362,19 @@ exports.updateUsers = async (req, res) => {
       }
 
       updateFields.logo_path = logoPathLocal.replace(destServer, FILE_URL_PATH);
+    } else if (!req.user.logo_path) {
+      // Ajouter le logo uniquement si l'utilisateur n'en possède pas déjà
+      if (
+        req.files &&
+        req.files["logo"] &&
+        req.files["logo"][0]?.path !== undefined
+      ) {
+        const logoPathLocal = req.files["logo"][0].path;
+        updateFields.logo_path = logoPathLocal.replace(
+          destServer,
+          FILE_URL_PATH
+        );
+      }
     }
 
     if (
@@ -470,6 +481,24 @@ exports.deleteUsers = async (req, res) => {
         } else if (!result) {
           res.status(401).send({ message: "Incorrect Password" });
         } else {
+          // Supprimez le logo de l'utilisateur s'il existe
+          if (req.user.logo_path) {
+            const logoPath = req.user.logo_path.replace(
+              FILE_URL_PATH,
+              destServer
+            );
+            fs.unlinkSync(logoPath);
+          }
+
+          // Supprimez la bannière de l'utilisateur si elle existe
+          if (req.user.banner_path) {
+            const bannerPath = req.user.banner_path.replace(
+              FILE_URL_PATH,
+              destServer
+            );
+            fs.unlinkSync(bannerPath);
+          }
+
           const user = await User.deleteOne({ _id: userId });
           res.send(user);
         }
@@ -482,8 +511,29 @@ exports.deleteUsers = async (req, res) => {
 
 exports.deleteUserByID = async (req, res) => {
   const { userId } = req.params;
-
+  const destServer = process.env.DEST_SERVER;
+  const FILE_URL_PATH = process.env.FILE_URL;
+  
   try {
+
+    const selectedUser = await User.findById(userId);
+
+    if (!selectedUser) {
+      return res.status(404).json({ message: "Utilisateur introuvable" });
+    }
+
+    // Supprimer le logo de l'utilisateur s'il existe
+    if (selectedUser.logo_path) {
+      const logoPathLocal = selectedUser.logo_path.replace(FILE_URL_PATH, destServer);
+      fs.unlinkSync(logoPathLocal);
+    }
+
+    // Supprimer la bannière de l'utilisateur si elle existe
+    if (selectedUser.banner_path) {
+      const bannerPathLocal = selectedUser.banner_path.replace(FILE_URL_PATH, destServer);
+      fs.unlinkSync(bannerPathLocal);
+    }
+
     const user = await User.deleteOne({ _id: userId });
     res.status(200).send({ message: `${user.username} a bien été supprimé` });
   } catch (error) {
