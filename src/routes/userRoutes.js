@@ -16,6 +16,7 @@ const {
   channelUsers,
   forgetPassword,
   resetPassword,
+  resendVerificationEmail,
 } = require("../controllers/userController");
 
 router.get("/getAll", isAuth, isAdmin, getAllUsers);
@@ -67,5 +68,7 @@ router.delete("/delete", isAuth, deleteUsers);
 router.delete("/delete/:userId", isAuth, isAdmin, deleteUserByID);
 
 router.post("/verification", verificationUsers);
+
+router.post("/resendVerificationEmail", resendVerificationEmail);
 
 module.exports = router;

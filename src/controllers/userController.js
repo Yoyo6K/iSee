@@ -679,3 +679,51 @@ exports.verificationUsers = async (req, res) => {
     }
   });
 };
+
+exports.resendVerificationEmail = async (req, res) => {
+  try {
+
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    if (user.isValidated) {
+      return res.status(200).send({ message: "Account has already been verified" });
+    }
+
+    let transporter = nodemailer.createTransport({
+      host: emailConfig.host,
+      port: emailConfig.port,
+      auth: {
+        user: emailConfig.auth.user,
+        pass: emailConfig.auth.pass,
+      },
+    });
+
+    let mailOptions = {
+      from: "no-reply@iseevision.fr",
+      to: req.body.email,
+      subject: "Isee mail verification request",
+      html: emailConfig.getHtml(
+        encodeURIComponent(user.token),
+        req.body.username
+      ),
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending verification email:", error);
+        return res.status(500).send({ error: "Error sending verification email" });
+      } else {
+        console.log("Verification email sent successfully. Server response:", info.response);
+        return res.send({ message: "A verification email has been sent to your email address." });
+      }
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Error sending verification email" });
+  }
+};

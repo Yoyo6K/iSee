@@ -410,6 +410,50 @@
           }
         }
       }
+    },
+    "/api/users/resendVerificationEmail": {
+      "post": {
+        "tags": ["Users"],
+        "summary": "Resend Verification Email",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "description": "User's email address"
+                  }
+                },
+                "required": ["email"]
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Verification email has been sent",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "Bad Request. User with provided email does not exist or account is already verified.",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
     },    
     "/api/comments/video/{videoId}": {
       "get": {
