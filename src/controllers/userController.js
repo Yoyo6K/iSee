@@ -214,6 +214,8 @@ exports.loginUsers = async (req, res) => {
 
 exports.registerUsers = async (req, res) => {
   const { error } = validateRegister(req.body);
+    const destServer = process.env.DEST_SERVER;
+    const FILE_URL_PATH = process.env.FILE_URL;
 
   if (error) {
     console.log("validation error :", error);
@@ -323,7 +325,7 @@ exports.registerUsers = async (req, res) => {
 
 exports.forgetPassword = async (req, res) => {
   try {
-
+    console.log("forget password")
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
