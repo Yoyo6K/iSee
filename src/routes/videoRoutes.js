@@ -19,6 +19,7 @@ const {
   adminBlockVideo,
   adminUnblockVideo,
   adminDeleteVideo,
+  similarVideo
 } = require("../controllers/videoController");
 const fileUpload = require("../middleware/fileUpload");
 
@@ -57,5 +58,7 @@ router.delete("/delete/:videoId", isAuth, deleteVideo);
 router.delete("/admin/delete/:videoId", isAuth, isAdmin, adminDeleteVideo);
 
 router.get("/:id", getVideo);
+
+router.get("/similarVideo/:userId", similarVideo)
 
 module.exports = router;

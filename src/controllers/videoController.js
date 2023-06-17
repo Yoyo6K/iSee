@@ -454,7 +454,7 @@ exports.deleteVideo = async (req, res) => {
       );
       const fileExistsSync = fs.existsSync(videoPathLocal);
       if (fileExistsSync) {
-         fs.unlinkSync(videoPathLocal);
+        fs.unlinkSync(videoPathLocal);
       }
     }
 
@@ -466,7 +466,7 @@ exports.deleteVideo = async (req, res) => {
       );
       const fileExistsSync = fs.existsSync(thumbnailPathLocal);
       if (fileExistsSync) {
-         fs.unlinkSync(thumbnailPathLocal);
+        fs.unlinkSync(thumbnailPathLocal);
       }
     }
 
@@ -558,7 +558,7 @@ exports.adminDeleteVideo = async (req, res) => {
       );
       const fileExistsSync = fs.existsSync(videoPathLocal);
       if (fileExistsSync) {
-         fs.unlinkSync(videoPathLocal);
+        fs.unlinkSync(videoPathLocal);
       }
     }
 
@@ -570,7 +570,7 @@ exports.adminDeleteVideo = async (req, res) => {
       );
       const fileExistsSync = fs.existsSync(thumbnailPathLocal);
       if (fileExistsSync) {
-         fs.unlinkSync(thumbnailPathLocal);
+        fs.unlinkSync(thumbnailPathLocal);
       }
     }
 
@@ -578,5 +578,47 @@ exports.adminDeleteVideo = async (req, res) => {
     res.status(200).send({ message: "Video deleted" });
   } catch (error) {
     res.status(500).send({ error: "Error deleting video" });
+  }
+};
+
+exports.similarVideo = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const userVideos = await Video.find({ ownerId: userId })
+      .populate("ownerId")
+      .limit(10);
+
+    const remainingVideosCount = 10 - userVideos.length;
+
+    let randomVideos = [];
+
+    if (remainingVideosCount > 0) {
+      randomVideos = await Video.find({ _id: { $nin: userVideos.map(video => video._id) } })
+        .limit(remainingVideosCount)
+        .populate('ownerId');
+    }
+
+    const videos = [...userVideos, ...randomVideos];
+
+    let formattedVideos = [];
+
+    // Parcourir chaque document retourné
+    for (let i = 0; i < videos.length; i++) {
+      const video = videos[i];
+
+      // Extraire les propriétés nécessaires du document et les stocker dans un nouvel objet JSON
+      const formattedVideo = formatVideo(video);
+
+      // Ajouter l'objet formaté au tableau des résultats
+      formattedVideos.push(formattedVideo);
+    }
+
+    res.status(200).send(formattedVideos);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ error: "Erreur lors de la récupération des vidéos similaires" });
   }
 };
