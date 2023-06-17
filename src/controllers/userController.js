@@ -54,10 +54,10 @@ exports.channelUsers = async (req, res) => {
           logo: channelUserInformation.logo_path,
           banner: channelUserInformation.banner_path,
         });
-      } else res.status(404).send({ message: "User channel not found" });
+      } else res.status(404).send({ error: "User channel not found" });
     }
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ error: "Internal Server Error" });
   }
 };
 
@@ -65,7 +65,7 @@ exports.refreshToken = async (req, res) => {
   try {
     const isAuthenticated = req.isAuthenticated;
   } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
+    res.status(500).send({ error: "Internal Server Error" });
   }
 };
 
@@ -86,7 +86,7 @@ exports.loginUsers = async (req, res) => {
 
   if (error) {
     console.log(error);
-    return res.status(400).send(error.details[0].message);
+    return res.status(400).send({error : error.details[0].message});
   }
 
   // Recherchez l'utilisateur dans la base de données en utilisant l'e-mail envoyé dans la requête
@@ -95,10 +95,10 @@ exports.loginUsers = async (req, res) => {
       if (err) {
         res.status(500).send(err);
       } else if (!user) {
-        res.status(401).send({ message: "Incorrect email or password" });
+        res.status(401).send({ error: "Incorrect email or password" });
       } else {
         if (!user.isValidated) {
-          return res.status(401).json({ message: "Account not validated" });
+          return res.status(401).json({ error: "Account not validated" });
         }
 
          const dateActuelle = Date.now();
@@ -145,9 +145,9 @@ exports.loginUsers = async (req, res) => {
           async (err, result) => {
             if (err) {
                 console.log("error 1 : ", err);
-              res.status(500).send(err);
+              res.status(500).send({error : err});
             } else if (!result) {
-              res.status(401).send({ message: "Incorrect email or password" });
+              res.status(401).send({ error: "Incorrect email or password" });
             } else {
               /* On créer le token CSRF */
               const xsrfToken = crypto.randomBytes(64).toString("hex");
@@ -207,7 +207,7 @@ exports.loginUsers = async (req, res) => {
       }
     } catch (err) {
       console.log("error: ",err);
-      return res.status(500).send("Internal Server Error");
+      return res.status(500).send({error :"Internal Server Error"});
     }
   });
 };
@@ -224,7 +224,7 @@ exports.registerUsers = async (req, res) => {
     // Vérifiez si l'adresse e-mail est déjà utilisée
     User.findOne({ email: req.body.email }, async (err, user) => {
       if (err) {
-        res.status(500).send(err);
+        res.status(500).send({error :err});
       } else if (user) {
         res
           .status(400)
@@ -233,7 +233,7 @@ exports.registerUsers = async (req, res) => {
         // Hash le mot de passe de l'utilisateur
         bcrypt.hash(req.body.password, 10, async (err, hash) => {
           if (err) {
-            res.status(500).send(err);
+            res.status(500).send({error :err});
           } else {
             // Créez un nouvel utilisateur avec les données envoyées dans la requête et le mot de passe hashé
             const newUser = new User({
@@ -261,7 +261,7 @@ exports.registerUsers = async (req, res) => {
             newUser.save(async (err, user) => {
               if (err) {
                 console.error(err);
-                res.status(500).send(err);
+                res.status(500).send({error :err});
               } else {
                 const token = crypto.randomBytes(64).toString("base64");
 
@@ -330,8 +330,7 @@ exports.updateUsers = async (req, res) => {
   if (error) {
     console.log("error validator", error);
     return res.status(400).json({
-      message: "Erreur lors de la mise à jour",
-      error: error.details[0].message,
+      error: "Erreur lors de la mise à jour",
     });
   }
 
@@ -347,7 +346,7 @@ exports.updateUsers = async (req, res) => {
       if (existingUser) {
         return res
           .status(400)
-          .json({ message: "This username is already taken." });
+          .json({ error: "This username is already taken." });
       } else {
         updateFields.username = req.body.username;
       }
@@ -361,7 +360,7 @@ exports.updateUsers = async (req, res) => {
       if (existingEmail) {
         return res
           .status(400)
-          .json({ message: "This email is already in use." });
+          .json({ error: "This email is already in use." });
       } else {
         updateFields.email = req.body.email;
       }
@@ -371,7 +370,7 @@ exports.updateUsers = async (req, res) => {
       // Hash le mot de passe de l'utilisateur
       await bcrypt.hash(req.body.password, 10, (err, hash) => {
         if (err) {
-          return res.status(500).send(err);
+          return res.status(500).send({error :err});
         } else {
           updateFields.password = hash;
         }
@@ -449,7 +448,7 @@ exports.updateUsers = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(400).json({ error });
+    res.status(500).json({ error : "Internal server error" });
   }
 };
 
@@ -463,9 +462,9 @@ exports.deleteUsers = async (req, res) => {
       req.user.password,
       async (err, result) => {
         if (err) {
-          res.status(500).send(err);
+          res.status(500).send({error :err});
         } else if (!result) {
-          res.status(401).send({ message: "Incorrect Password" });
+          res.status(401).send({ error: "Incorrect Password" });
         } else {
           // Supprimez le logo de l'utilisateur s'il existe
           if (req.user.logo_path) {
@@ -504,7 +503,7 @@ exports.deleteUserByID = async (req, res) => {
     const selectedUser = await User.findById(userId);
 
     if (!selectedUser) {
-      return res.status(404).json({ message: "Utilisateur introuvable" });
+      return res.status(404).json({ error: "Utilisateur introuvable" });
     }
 
     // Supprimer le logo de l'utilisateur s'il existe
