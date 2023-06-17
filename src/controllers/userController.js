@@ -218,7 +218,11 @@ exports.registerUsers = async (req, res) => {
               req.files["logo"] &&
               req.files["logo"][0]?.path !== undefined
             ) {
-              newUser.logo_path = req.files["logo"][0].path;
+
+              const logoPathLocal = req.files["logo"][0].path;
+
+              newUser.logo_path = logoPathLocal.replace(destServer, FILE_URL_PATH);
+
             }
             // Enregistrez l'utilisateur dans la base de données
             newUser.save(async (err, user) => {
@@ -529,7 +533,10 @@ exports.deleteUserByID = async (req, res) => {
         FILE_URL_PATH,
         destServer
       );
-      fs.unlinkSync(logoPathLocal);
+      const fileExistsSync = fs.existsSync(logoPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(logoPathLocal);
+      }
     }
 
     // Supprimer la bannière de l'utilisateur si elle existe
@@ -538,7 +545,10 @@ exports.deleteUserByID = async (req, res) => {
         FILE_URL_PATH,
         destServer
       );
-      fs.unlinkSync(bannerPathLocal);
+      const fileExistsSync = fs.existsSync(bannerPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(bannerPathLocal);
+      }
     }
 
     const user = await User.deleteOne({ _id: userId });
