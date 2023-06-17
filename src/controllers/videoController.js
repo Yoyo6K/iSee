@@ -452,7 +452,10 @@ exports.deleteVideo = async (req, res) => {
         FILE_URL_PATH,
         destServer
       );
-      fs.unlinkSync(videoPathLocal);
+      const fileExistsSync = fs.existsSync(videoPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(videoPathLocal);
+      }
     }
 
     // Supprimer la bannière de l'utilisateur si elle existe
@@ -461,7 +464,10 @@ exports.deleteVideo = async (req, res) => {
         FILE_URL_PATH,
         destServer
       );
-      fs.unlinkSync(thumbnailPathLocal);
+      const fileExistsSync = fs.existsSync(thumbnailPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(thumbnailPathLocal);
+      }
     }
 
     await Video.findByIdAndDelete(videoId);
@@ -550,7 +556,10 @@ exports.adminDeleteVideo = async (req, res) => {
         FILE_URL_PATH,
         destServer
       );
-      fs.unlinkSync(videoPathLocal);
+      const fileExistsSync = fs.existsSync(videoPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(videoPathLocal);
+      }
     }
 
     // Supprimer la miniature de la video si elle existe
@@ -559,7 +568,10 @@ exports.adminDeleteVideo = async (req, res) => {
         FILE_URL_PATH,
         destServer
       );
-      fs.unlinkSync(thumbnailPathLocal);
+      const fileExistsSync = fs.existsSync(thumbnailPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(thumbnailPathLocal);
+      }
     }
 
     await Video.findByIdAndDelete(videoId);
