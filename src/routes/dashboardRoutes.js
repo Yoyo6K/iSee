@@ -7,7 +7,9 @@ const {
     getNbUser,
     getNbVideoUpload,
     getSizeVideoUpload,
-    getTableViews
+    getTableViews,
+    banUser,
+    unbanUser
   } = require("../controllers/dashboardController");
 
 router.get("/getNbUser", isAuth, isAdmin, getNbUser);
@@ -17,5 +19,9 @@ router.get("/getNbVideoUpload", isAuth, isAdmin, getNbVideoUpload);
 router.get("/getSizeVideoUpload", isAuth, isAdmin, getSizeVideoUpload);
 
 router.get("/getViewsByDuration", isAuth, isAdmin, getTableViews)
+
+router.post("/banUser", isAuth, isAdmin, banUser);
+
+router.put("/unbanUser/:userId", isAuth, isAdmin, unbanUser);
 
 module.exports = router;
