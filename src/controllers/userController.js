@@ -354,27 +354,17 @@ exports.updateUsers = async (req, res) => {
 
       // Supprimer l'ancienne photo de profil si elle existe
       if (req.user.logo_path) {
-        const previousLogoPath = req.user.logo_path.replace(
+        const previousLogoPath  = req.user.logo_path.replace(
           FILE_URL_PATH,
           destServer
         );
-        fs.unlinkSync(previousLogoPath);
+        const fileExistsSync = fs.existsSync(previousLogoPath);
+        if (fileExistsSync) {
+           fs.unlinkSync(previousLogoPath);
+        }
       }
 
       updateFields.logo_path = logoPathLocal.replace(destServer, FILE_URL_PATH);
-    } else if (!req.user.logo_path) {
-      // Ajouter le logo uniquement si l'utilisateur n'en possède pas déjà
-      if (
-        req.files &&
-        req.files["logo"] &&
-        req.files["logo"][0]?.path !== undefined
-      ) {
-        const logoPathLocal = req.files["logo"][0].path;
-        updateFields.logo_path = logoPathLocal.replace(
-          destServer,
-          FILE_URL_PATH
-        );
-      }
     }
 
     if (
@@ -390,26 +380,16 @@ exports.updateUsers = async (req, res) => {
           FILE_URL_PATH,
           destServer
         );
-        fs.unlinkSync(previousBannerPath);
+        const fileExistsSync = fs.existsSync(previousBannerPath);
+        if (fileExistsSync) {
+           fs.unlinkSync(previousBannerPath);
+        }
       }
 
       updateFields.banner_path = bannerPathLocal.replace(
         destServer,
         FILE_URL_PATH
       );
-    } else if (!req.user.banner_path) {
-      // Ajouter la banniere uniquement si l'utilisateur n'en possède pas déjà
-      if (
-        req.files &&
-        req.files["banner"] &&
-        req.files["banner"][0]?.path !== undefined
-      ) {
-        const bannerPathLocal = req.files["banner"][0].path;
-        updateFields.banner_path = bannerPathLocal.replace(
-          destServer,
-          FILE_URL_PATH
-        );
-      }
     }
 
     updateFields.updatedAt = new Date();
