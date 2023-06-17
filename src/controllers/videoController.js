@@ -1,5 +1,6 @@
 const Video = require("../models/videoModel");
 const mongoose = require("mongoose");
+const fs = require("fs");
 
 const EnumVideo = {
   Private: "Private",
@@ -220,14 +221,16 @@ exports.incrementViewCount = async (req, res) => {
     if (!video) {
       return res.status(404).send({ error: "Video not found" });
     }
-    
+
     // Obtenir la date actuelle à minuit (00:00:00)
-    const currentDate = new Date()
+    const currentDate = new Date();
     currentDate.setHours(0, 0, 0, 0);
 
     // Trouver un objet de vue pour la date actuelle
-    let viewDetail = video.views.find(v => v.date.getTime() === currentDate.getTime());
-    
+    let viewDetail = video.views.find(
+      (v) => v.date.getTime() === currentDate.getTime()
+    );
+
     if (!viewDetail) {
       // Si aucun objet de vue n'existe pour la date actuelle, en créer un nouveau
       viewDetail = { date: currentDate, count: 0 };
@@ -236,7 +239,7 @@ exports.incrementViewCount = async (req, res) => {
 
     viewDetail.count++;
     video.viewsCount++;
-    
+
     await video.save();
 
     const formattedVideo = formatVideo(video);
@@ -370,7 +373,6 @@ exports.uploadVideo = async (req, res) => {
     const thumbnailPath = thumbnailPathLocal.replace(destServer, FILE_URL_PATH);
 
     const uploadId = mongoose.Types.ObjectId(uploadIdSTR).toString();
-  
 
     const newVideo = new Video({
       _id: uploadId,
@@ -384,7 +386,6 @@ exports.uploadVideo = async (req, res) => {
     });
 
     const savedVideo = await newVideo.save();
-    
 
     const formattedVideo = formatVideo(savedVideo);
 
@@ -425,6 +426,9 @@ exports.updateVideo = async (req, res) => {
 };
 
 exports.deleteVideo = async (req, res) => {
+  const destServer = process.env.DEST_SERVER;
+  const FILE_URL_PATH = process.env.FILE_URL;
+
   try {
     const videoId = req.params.videoId;
     const userId = req.user._id;
@@ -440,6 +444,30 @@ exports.deleteVideo = async (req, res) => {
       req.user.isAdmin !== true
     ) {
       return res.status(403).send({ error: "You don't have the permission" });
+    }
+
+    // Supprimer la video de la Video s'il existe
+    if (video.video_path) {
+      const videoPathLocal = video.video_path.replace(
+        FILE_URL_PATH,
+        destServer
+      );
+      const fileExistsSync = fs.existsSync(videoPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(videoPathLocal);
+      }
+    }
+
+    // Supprimer la bannière de l'utilisateur si elle existe
+    if (video.thumbnail_path) {
+      const thumbnailPathLocal = video.thumbnail_path.replace(
+        FILE_URL_PATH,
+        destServer
+      );
+      const fileExistsSync = fs.existsSync(thumbnailPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(thumbnailPathLocal);
+      }
     }
 
     await Video.findByIdAndDelete(videoId);
@@ -502,6 +530,9 @@ exports.adminUnblockVideo = async (req, res) => {
 };
 
 exports.adminDeleteVideo = async (req, res) => {
+  const destServer = process.env.DEST_SERVER;
+  const FILE_URL_PATH = process.env.FILE_URL;
+
   try {
     const videoId = req.params.videoId;
     const userId = req.user._id;
@@ -517,6 +548,30 @@ exports.adminDeleteVideo = async (req, res) => {
       req.user.isAdmin !== true
     ) {
       return res.status(403).send({ error: "You don't have the permission" });
+    }
+
+    // Supprimer la video de la Video s'il existe
+    if (video.video_path) {
+      const videoPathLocal = video.video_path.replace(
+        FILE_URL_PATH,
+        destServer
+      );
+      const fileExistsSync = fs.existsSync(videoPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(videoPathLocal);
+      }
+    }
+
+    // Supprimer la miniature de la video si elle existe
+    if (video.thumbnail_path) {
+      const thumbnailPathLocal = video.thumbnail_path.replace(
+        FILE_URL_PATH,
+        destServer
+      );
+      const fileExistsSync = fs.existsSync(thumbnailPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(thumbnailPathLocal);
+      }
     }
 
     await Video.findByIdAndDelete(videoId);

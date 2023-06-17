@@ -4,7 +4,7 @@ const crypto = require("crypto");
 const User = require("../models/userModel");
 const nodemailer = require("nodemailer");
 const emailConfig = require("../../config/Mailer");
-const fs = require("fs")
+const fs = require("fs");
 require("dotenv").config();
 
 // Vérification si l'environment est en developpement
@@ -251,7 +251,11 @@ exports.registerUsers = async (req, res) => {
               req.files["logo"] &&
               req.files["logo"][0]?.path !== undefined
             ) {
-              newUser.logo_path = req.files["logo"][0].path;
+
+              const logoPathLocal = req.files["logo"][0].path;
+
+              newUser.logo_path = logoPathLocal.replace(destServer, FILE_URL_PATH);
+
             }
             // Enregistrez l'utilisateur dans la base de données
             newUser.save(async (err, user) => {
@@ -385,13 +389,16 @@ exports.updateUsers = async (req, res) => {
     ) {
       const logoPathLocal = req.files["logo"][0].path;
 
-      // Supprimer l'ancienne photo de profil
+      // Supprimer l'ancienne photo de profil si elle existe
       if (req.user.logo_path) {
-        const previousLogoPath = req.user.logo_path.replace(
+        const previousLogoPath  = req.user.logo_path.replace(
           FILE_URL_PATH,
           destServer
         );
-        fs.unlinkSync(previousLogoPath);
+        const fileExistsSync = fs.existsSync(previousLogoPath);
+        if (fileExistsSync) {
+           fs.unlinkSync(previousLogoPath);
+        }
       }
 
       updateFields.logo_path = logoPathLocal.replace(destServer, FILE_URL_PATH);
@@ -403,6 +410,19 @@ exports.updateUsers = async (req, res) => {
       req.files["banner"][0]?.path !== undefined
     ) {
       const bannerPathLocal = req.files["banner"][0].path;
+
+      // Supprimer l'ancienne banniere de profil si elle existe
+      if (req.user.banner_path) {
+        const previousBannerPath = req.user.banner_path.replace(
+          FILE_URL_PATH,
+          destServer
+        );
+        const fileExistsSync = fs.existsSync(previousBannerPath);
+        if (fileExistsSync) {
+           fs.unlinkSync(previousBannerPath);
+        }
+      }
+
       updateFields.banner_path = bannerPathLocal.replace(
         destServer,
         FILE_URL_PATH
@@ -433,60 +453,6 @@ exports.updateUsers = async (req, res) => {
   }
 };
 
-exports.banUser = async (req, res) => {
-  if (!req.user.isAdmin) {
-    return res.status(403).send({ error: "Only admins can ban users" });
-  }
-
-  const { userId, banUntil, banReason } = req.body;
-
-  if (!userId || !banUntil) {
-    return res.status(400).send({ error: "Missing userId or banUntil" });
-  }
-
-  if (!banReason) {
-    return res.status(400).send({ error: "Missing banReason" });
-  }
-
-  const banDate = new Date(banUntil);
-  console.log(banUntil);
-  if (isNaN(banDate) || banDate < new Date()) {
-    return res
-      .status(400)
-      .send({ error: "banUntil must be a valid date in the future" });
-  }
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).send({ error: "User not found" });
-    }
-
-    await User.findByIdAndUpdate(userId, { banUntil, banReason });
-
-    res.send({ message: "User has been banned successfully" });
-  } catch (error) {
-    res.status(500).send({ error: error.message });
-  }
-};
-
-exports.unbanUser = async (req, res) => {
-  if (!req.user.isAdmin) {
-    return res.status(403).send({ error: "Only admins can unban users" });
-  }
-
-  const { userId } = req.params;
-
-  try {
-    // Mettre à jour l'utilisateur avec la date de fin du bannissement à null
-    await User.findByIdAndUpdate(userId, { banUntil: null, banReason: null });
-
-    res.send({ message: "User has been unbanned successfully" });
-  } catch (error) {
-    res.status(500).send({ error: "Error unbanning user" });
-  }
-};
-
 exports.deleteUsers = async (req, res) => {
   const userId = req.user._id;
 
@@ -501,6 +467,24 @@ exports.deleteUsers = async (req, res) => {
         } else if (!result) {
           res.status(401).send({ message: "Incorrect Password" });
         } else {
+          // Supprimez le logo de l'utilisateur s'il existe
+          if (req.user.logo_path) {
+            const logoPath = req.user.logo_path.replace(
+              FILE_URL_PATH,
+              destServer
+            );
+            fs.unlinkSync(logoPath);
+          }
+
+          // Supprimez la bannière de l'utilisateur si elle existe
+          if (req.user.banner_path) {
+            const bannerPath = req.user.banner_path.replace(
+              FILE_URL_PATH,
+              destServer
+            );
+            fs.unlinkSync(bannerPath);
+          }
+
           const user = await User.deleteOne({ _id: userId });
           res.send(user);
         }
@@ -513,8 +497,40 @@ exports.deleteUsers = async (req, res) => {
 
 exports.deleteUserByID = async (req, res) => {
   const { userId } = req.params;
+  const destServer = process.env.DEST_SERVER;
+  const FILE_URL_PATH = process.env.FILE_URL;
 
   try {
+    const selectedUser = await User.findById(userId);
+
+    if (!selectedUser) {
+      return res.status(404).json({ message: "Utilisateur introuvable" });
+    }
+
+    // Supprimer le logo de l'utilisateur s'il existe
+    if (selectedUser.logo_path) {
+      const logoPathLocal = selectedUser.logo_path.replace(
+        FILE_URL_PATH,
+        destServer
+      );
+      const fileExistsSync = fs.existsSync(logoPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(logoPathLocal);
+      }
+    }
+
+    // Supprimer la bannière de l'utilisateur si elle existe
+    if (selectedUser.banner_path) {
+      const bannerPathLocal = selectedUser.banner_path.replace(
+        FILE_URL_PATH,
+        destServer
+      );
+      const fileExistsSync = fs.existsSync(bannerPathLocal);
+      if (fileExistsSync) {
+         fs.unlinkSync(bannerPathLocal);
+      }
+    }
+
     const user = await User.deleteOne({ _id: userId });
     res.status(200).send({ message: `${user.username} a bien été supprimé` });
   } catch (error) {
