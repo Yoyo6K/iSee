@@ -78,6 +78,71 @@
         }
       }
     },
+    "/api/users/channel/{channelName}": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "Get Channel Users",
+        "parameters": [
+          {
+            "name": "channelName",
+            "in": "path",
+            "required": true,
+            "description": "Name of the channel",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "description": "ID of the channel user"
+                    },
+                    "username": {
+                      "type": "string",
+                      "description": "Username of the channel user"
+                    },
+                    "logo": {
+                      "type": "string",
+                      "description": "Path to the logo of the channel user"
+                    },
+                    "banner": {
+                      "type": "string",
+                      "description": "Path to the banner of the channel user"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden. Access denied",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "User channel not found",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },    
     "/api/users/login": {
       "post": {
         "tags": [
@@ -314,6 +379,48 @@
         }
       }
     },
+    "/api/users/delete/{userId}": {
+      "delete": {
+        "tags": ["Users"],
+        "summary": "Delete User by ID",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the user to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "XSRF-Token": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User has been deleted",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {}
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },    
     "/api/users/banUser": {
       "post": {
         "tags": [
@@ -411,6 +518,72 @@
         }
       }
     },
+    "/api/users/verification": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Verify user email",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": true,
+            "description": "Verification token",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },    
     "/api/users/resendVerificationEmail": {
       "post": {
         "tags": ["Users"],
@@ -661,6 +834,58 @@
         }
       }
     },
+    "/api/videos/getAllAdmin": {
+      "get": {
+        "tags": ["Videos"],
+        "summary": "Get All Videos (Admin)",
+        "security": [
+          {
+            "XSRF-Token": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Page number for pagination",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "perPage",
+            "in": "query",
+            "required": false,
+            "description": "Number of items per page",
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Video"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },      
     "/api/videos/{id}": {
       "get": {
         "tags": [
