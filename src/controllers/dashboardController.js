@@ -1,5 +1,8 @@
 const Video = require("../models/videoModel");
 const User = require("../models/userModel");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+const emailConfig = require("../../config/Mailer");
 
 const EnumVideo = {
   Private: "Private",
@@ -61,7 +64,7 @@ exports.getTableViews = async (req, res) => {
     videos.forEach((video) => {
       video.views.forEach((view) => {
         if (view.date >= referenceDate) {
-          const date = view.date.toISOString().split('T')[0];
+          const date = view.date.toISOString().split("T")[0];
           if (viewsByDate[date]) {
             viewsByDate[date].count += view.count;
           } else {
@@ -76,13 +79,15 @@ exports.getTableViews = async (req, res) => {
 
     // Ajouter les dates sans vue
     dates.forEach((date) => {
-      const dateString = date.toISOString().split('T')[0];
+      const dateString = date.toISOString().split("T")[0];
       if (!viewsByDate[dateString]) {
         viewsByDate[dateString] = { date: date, count: 0 };
       }
     });
 
-    const sortedViews = Object.values(viewsByDate).sort((a, b) => a.date - b.date);
+    const sortedViews = Object.values(viewsByDate).sort(
+      (a, b) => a.date - b.date
+    );
     res.status(200).json({ viewsByDate: sortedViews });
   } catch (error) {
     res.status(500).json({
@@ -157,7 +162,6 @@ exports.banUser = async (req, res) => {
 
     await Video.updateMany({ ownerId: userId }, { state: EnumVideo.Blocked });
 
-
     res.send({ message: "User has been banned successfully" });
   } catch (error) {
     res.status(500).send({ error: error.message });
@@ -179,5 +183,59 @@ exports.unbanUser = async (req, res) => {
     res.send({ message: "User has been unbanned successfully" });
   } catch (error) {
     res.status(500).send({ error: "Error unbanning user" });
+  }
+};
+
+exports.resendMailVerification = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId)
+
+    const token = crypto.randomBytes(64).toString("base64");
+
+    await User.findByIdAndUpdate(userId, {
+      token: token,
+    });
+
+    let transporter = nodemailer.createTransport({
+      host: emailConfig.host,
+      port: emailConfig.port,
+      auth: {
+        user: emailConfig.auth.user,
+        pass: emailConfig.auth.pass,
+      },
+    });
+
+    let mailOptions = {
+      from: "no-reply@iseevision.fr",
+      to: user.email,
+      subject: "Isee mail verification request",
+      html: emailConfig.getHtml(encodeURIComponent(token), user.username),
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Erreur lors de l'envoi de l'e-mail :", error);
+      } else {
+        console.log(
+          "E-mail envoyé avec succès. Réponse du serveur :",
+          info.response
+        );
+      }
+    });
+
+    res.send({
+      // xsrfToken: xsrfToken,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        isAdmin: user.isAdmin,
+      },
+    });
+    res.send(200).send({ message: `A verification mail has been sent` });
+  } catch (error) {
+    console.log(error);
   }
 };
