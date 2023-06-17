@@ -321,6 +321,96 @@ exports.registerUsers = async (req, res) => {
   }
 };
 
+exports.forgetPassword = async (req, res) => {
+  try {
+
+    const user = await User.findOne({ email: req.body.email });
+
+    if (!user) {
+      return res.status(404).send({ error: "User not found" });
+    }
+
+    const token = crypto.randomBytes(64).toString("base64");
+
+    await User.findByIdAndUpdate(user._id, {
+      token: token,
+      expiresAt: Date.now() + 3600000,
+    });
+
+    let transporter = nodemailer.createTransport({
+      host: emailConfig.host,
+      port: emailConfig.port,
+      auth: {
+        user: emailConfig.auth.user,
+        pass: emailConfig.auth.pass,
+      },
+    });
+
+
+    let mailOptions = {
+      from: "no-reply@iseevision.fr",
+      to: req.body.email,
+      subject: "Isee password reset request",
+      html: emailConfig.getHtmlPasswordResetEmail(
+        encodeURIComponent(token),
+        req.body.username
+      ),
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error(
+          "Erreur lors de l'envoi de l'e-mail :",
+          error
+        );
+      } else {
+        console.log(
+          "E-mail envoyé avec succès. Réponse du serveur :",
+          info.response
+        );
+      }
+    });
+
+    res.send({
+      message: "A password reset email has been sent to your email address.",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Error sending password reset email" });
+  }
+};
+
+exports.resetPassword = async (req, res) => {
+  try {
+
+    const user = await User.findOne({ 
+      token: req.params.token,
+    });
+
+    if (!user) {
+      return res.status(400).send({ error: "Invalid or expired password reset token" });
+    }
+
+    if (req.body.password.length < 12) {
+      return res.status(400).send({ error: "Password must be at least 12 characters long." });
+    }
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 12);
+
+    await User.findByIdAndUpdate(user._id, {
+      password: hashedPassword,
+      token: undefined,
+      expiresAt: undefined
+    });
+
+    res.send({ message: "Password has been successfully reset" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ error: "Error resetting password" });
+  }
+};
+
 exports.updateUsers = async (req, res) => {
   const { error } = validateUpdate(req.body);
   const destServer = process.env.DEST_SERVER;

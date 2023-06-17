@@ -14,6 +14,8 @@ const {
   logoutUsers,
   verificationUsers,
   channelUsers,
+  forgetPassword,
+  resetPassword,
 } = require("../controllers/userController");
 
 router.get("/getAll", isAuth, isAdmin, getAllUsers);
@@ -55,6 +57,10 @@ router.put(
   ]),
   updateUsers
 );
+
+router.post("/forgetPassword", forgetPassword);
+
+router.post("/resetPassword/:token", resetPassword);
 
 router.delete("/delete", isAuth, deleteUsers);
 

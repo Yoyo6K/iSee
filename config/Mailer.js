@@ -44,6 +44,52 @@ function generateVerificationEmail(token, username) {
   </html>`;
 }
 
+function generatePasswordResetEmail(token, username) {
+  return `<!DOCTYPE html>
+  <html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Password Reset</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f9f9f9;
+        padding: 20px;
+      }
+      h1 {
+        color: #333333;
+        font-size: 24px;
+      }
+      p {
+        color: #666666;
+        font-size: 16px;
+      }
+      a {
+        color: #ffffff;
+        background-color: #007bff;
+        border-radius: 5px;
+        padding: 10px 20px;
+        text-decoration: none;
+      }
+      a:hover {
+        background-color: #0099ff;
+      }
+      .username {
+        color: #007bff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Password Reset</h1>
+    <p>Hi <span class="username">${username}</span>, we received a request to reset your password.</p>
+    <p>Please click on the link below to reset your password:</p><br/>
+    <p><a href="https://iseevision.fr/resetpassword?token=${token}">Reset Password</a></p><br/>
+    <p>If you didn't request this, please ignore this email.</p>
+    <p>iSee</p>
+  </body>
+  </html>`;
+}
+
 const emailConfig = {
   host: "smtp.ionos.fr",
   port: 465,
@@ -52,6 +98,7 @@ const emailConfig = {
     pass: "5&g9G5u6:#dZDdC6sY{",
   },
   getHtml: (token, username) => generateVerificationEmail(token, username),
+  getHtmlPasswordResetEmail: (token, username) => generatePasswordResetEmail(token, username),
 };
 
 module.exports = emailConfig;
