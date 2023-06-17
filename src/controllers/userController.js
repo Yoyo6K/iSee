@@ -32,6 +32,11 @@ exports.channelUsers = async (req, res) => {
   const username = channelName;
 
   try {
+    console.log(req.error)
+    if(req.error)
+    {
+      return res.status(403).send({error: req.error});
+    }
     if (isAuthenticated && req.user.username === username) {
       const { _id, username, logo_path, banner_path } = req.user;
       res.status(200).send({
@@ -96,18 +101,42 @@ exports.loginUsers = async (req, res) => {
           return res.status(401).json({ message: "Account not validated" });
         }
 
-        const dateActuelle = Date.now();
-        const dateBanissement = new Date(user.banUntil).getTime();
+         const dateActuelle = Date.now();
+         const dateBanissement = new Date(user.banUntil).getTime();
 
-        // Vérifier si l'utilisateur est banni
-        if (user.banUntil && dateBanissement > dateActuelle) {
-          return res
-            .status(403)
-            .send({
-              message: "This user is currently banned",
-              banReason: user.banReason,
-            });
-        }
+         // Vérifier si l'utilisateur est banni
+         if (user.banUntil && dateBanissement > dateActuelle) {
+           const banissement = new Date(user.banUntil);
+
+             res.clearCookie("access_token");
+             res.clearCookie("refresh_token");
+
+           if (banissement.getFullYear() !== 9999) {
+             const tempsRestant = dateBanissement - dateActuelle;
+             const joursRestants = Math.floor(
+               tempsRestant / (1000 * 60 * 60 * 24)
+             );
+             const heuresRestantes = Math.floor(
+               (tempsRestant % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+             );
+             const minutesRestantes = Math.floor(
+               (tempsRestant % (1000 * 60 * 60)) / (1000 * 60)
+             );
+             const secondesRestantes = Math.floor(
+               (tempsRestant % (1000 * 60)) / 1000
+             );
+
+             return res.status(403).send({
+               isAuthenticated: false,
+               error: `You're banned for ${user.banReason} \n remaining time : ${joursRestants} days ${heuresRestantes} hours  ${minutesRestantes} minutes ${secondesRestantes} seconds`,
+             });
+           } else {
+             return res.status(403).send({
+               isAuthenticated: false,
+               error: `You're banned ${user.banReason}`,
+             });
+           }
+         }
 
         // Vérifiez si le mot de passe envoyé dans la requête correspond au mot de passe hashé de l'utilisateur
         bcrypt.compare(
@@ -115,6 +144,7 @@ exports.loginUsers = async (req, res) => {
           user.password,
           async (err, result) => {
             if (err) {
+                console.log("error 1 : ", err);
               res.status(500).send(err);
             } else if (!result) {
               res.status(401).send({ message: "Incorrect email or password" });
@@ -176,6 +206,7 @@ exports.loginUsers = async (req, res) => {
         );
       }
     } catch (err) {
+      console.log("error: ",err);
       return res.status(500).send("Internal Server Error");
     }
   });
@@ -197,7 +228,7 @@ exports.registerUsers = async (req, res) => {
       } else if (user) {
         res
           .status(400)
-          .send({ message: "This email address is already in use" });
+          .send({ error: "This email address is already in use" });
       } else {
         // Hash le mot de passe de l'utilisateur
         bcrypt.hash(req.body.password, 10, async (err, hash) => {
