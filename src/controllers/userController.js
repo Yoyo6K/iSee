@@ -355,7 +355,7 @@ exports.forgetPassword = async (req, res) => {
       subject: "Isee password reset request",
       html: emailConfig.getHtmlPasswordResetEmail(
         encodeURIComponent(token),
-        req.body.username
+        user.username
       ),
     };
 
@@ -710,7 +710,7 @@ exports.resendVerificationEmail = async (req, res) => {
       subject: "Isee mail verification request",
       html: emailConfig.getHtml(
         encodeURIComponent(user.token),
-        req.body.username
+        user.username
       ),
     };
 
