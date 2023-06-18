@@ -115,7 +115,7 @@ app.post("/api/upload", (req, res) => {
   const tmpFilename = "tmp_" + md5(name + req.ip) + "." + ext;
 
 
-  console.logs("uploading...", currentChunkIndex);
+  console.logs("uploading...");
   if (firstChunk && fs.existsSync("./uploads/" + tmpFilename)) {
     fs.unlinkSync("./uploads/" + tmpFilename);
   }
