@@ -236,6 +236,6 @@ exports.resendMailVerification = async (req, res) => {
     });
     res.send(200).send({ message: `A verification mail has been sent` });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 };

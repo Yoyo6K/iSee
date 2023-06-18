@@ -6,7 +6,7 @@ module.exports.connect = async (callback) => {
     mongoose.connect(MONGODB_URI, error => {
             if (error) {
                 console.error('Connection failed')
-                console.log(error);
+                console.error(error);
             } else {
                 if (callback) {
                     callback(mongoose)

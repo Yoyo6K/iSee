@@ -25,7 +25,7 @@ const md5 = require("md5");
  */
 const db = mongoose.connection;
 
-dbConnect.connect().catch((error) => console.log(error));
+dbConnect.connect().catch((error) => console.error(error));
 
 db.once("open", () => {
   console.log(
@@ -123,7 +123,6 @@ io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante
   socket.on("join video chat", async (videoId, user) => {
     socket.join(`video-${videoId}`);
-console.log("Join",videoId);
     const { error } = await isAuthSocketMiddleware(socket); // vérification si l'utilisateur est connecté.
 
     if (error) {
@@ -171,7 +170,6 @@ console.log("Join",videoId);
       });
 
       io.to(room).emit("user left", users);
-      console.log(JSON.stringify(users));
     } else {
       io.to(room).emit("user left", []);
     }

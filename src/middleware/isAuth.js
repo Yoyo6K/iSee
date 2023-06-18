@@ -135,7 +135,6 @@ const checkAuthentication = async (req, res, responseType = "http") => {
       refreshTokenExpiringSoon
     );
     if (refreshTokenExpired || refreshTokenExpiringSoon) {
-      console.log("refresh token is expired");
       if (responseType == "http") {
         // Générez un nouveau token de rafraîchissement
         const newRefreshToken = crypto.randomBytes(128).toString("base64");
@@ -145,14 +144,6 @@ const checkAuthentication = async (req, res, responseType = "http") => {
         user.token = newRefreshToken;
         user.expiresAt = Date.now() + 2 * 60 * 60 * 1000; //  3 heures en millisecondes
         await user.save();
-        console.log(
-          "new refresh token ",
-          newRefreshToken,
-          "\nold",
-          cookies.refresh_token,
-          "\nuser oold ",
-          old_refresh
-        );
         const isDevelopment = process.env.NODE_ENV === "development";
         res.cookie("refresh_token", newRefreshToken, {
           httpOnly: true,
@@ -184,7 +175,6 @@ exports.isAuth = async (req, res, next) => {
     const { isAuthenticated, error, remainingTime, statusCode } =
       await checkAuthentication(req, res);
 
-    console.log("isAuthenticated", isAuthenticated);
     if (!isAuthenticated) {
       let message = `${error}`;
       if (remainingTime) {
@@ -248,7 +238,7 @@ exports.isAuthSocketMiddleware = async (socket, next) => {
       };
     }
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return { error: error };
   }
 };

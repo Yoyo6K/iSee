@@ -33,7 +33,6 @@ exports.channelUsers = async (req, res) => {
   const username = channelName;
 
   try {
-    console.log(req.error);
     if (req.error) {
       return res.status(403).send({ error: req.error });
     }
@@ -85,7 +84,7 @@ exports.loginUsers = async (req, res) => {
   const { error } = validateLogin(req.body);
 
   if (error) {
-    console.log(error);
+    console.error(error);
     return res.status(400).send({error : error.details[0].message});
   }
 
@@ -144,7 +143,7 @@ exports.loginUsers = async (req, res) => {
           user.password,
           async (err, result) => {
             if (err) {
-              console.log("error 1 : ", err);
+              console.error("error 1 : ", err);
               res.status(500).send({error : err});
             } else if (!result) {
               res.status(401).send({ error: "Incorrect email or password" });
@@ -206,7 +205,7 @@ exports.loginUsers = async (req, res) => {
         );
       }
     } catch (err) {
-      console.log("error: ",err);
+      console.error("error: ",err);
       return res.status(500).send({error :"Internal Server Error"});
     }
   });
@@ -218,7 +217,7 @@ exports.registerUsers = async (req, res) => {
     const FILE_URL_PATH = process.env.FILE_URL;
 
   if (error) {
-    console.log("validation error :", error);
+    console.error("validation error :", error);
     return res.send(error.details);
   }
 
@@ -325,7 +324,6 @@ exports.registerUsers = async (req, res) => {
 
 exports.forgetPassword = async (req, res) => {
   try {
-    console.log("forget password")
     const user = await User.findOne({ email: req.body.email });
 
     if (!user) {
@@ -419,7 +417,7 @@ exports.updateUsers = async (req, res) => {
   const FILE_URL_PATH = process.env.FILE_URL;
 
   if (error) {
-    console.log("error validator", error);
+    console.error("error validator", error);
     return res.status(400).json({
       error: "Erreur lors de la mise à jour",
     });
@@ -538,7 +536,7 @@ exports.updateUsers = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).json({ error : "Internal server error" });
   }
 };

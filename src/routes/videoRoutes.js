@@ -64,7 +64,6 @@ router.get("/:id", getVideo);
 router.get("/similarVideo/:userId", similarVideo);
 
 router.post("/uploadVideo",isAuth, (req, res) => {
-  console.log("upload")
   const destLocal = process.env.INIT_CWD;
   const destServer = process.env.DEST_SERVER;
   const isDevelopment = process.env.NODE_ENV === "development";
@@ -85,7 +84,6 @@ router.post("/uploadVideo",isAuth, (req, res) => {
     const buffer = Buffer.from(data, "base64"); // Utilisation de Buffer.from() au lieu de new Buffer()
     const tmpFilename = "tmp_" + md5(name) + "." + ext;
 
-    console.log("Uploading : ",currentChunkIndex);
 
     if (firstChunk && fs.existsSync(uploadDir + tmpFilename)) {
       fs.unlinkSync(uploadDir + tmpFilename);
@@ -97,7 +95,6 @@ router.post("/uploadVideo",isAuth, (req, res) => {
       const finalFilename = filename + "." + ext; // md5(Date.now()).substr(0, 6) + "." + ext;
 
       fs.renameSync(uploadDir + tmpFilename, uploadDir + finalFilename);
-      console.log("finalFilename : " +finalFilename);
       res.json({
         finalFileName: finalFilename,
         path: uploadDir.replace(destServer, FILE_URL_PATH)

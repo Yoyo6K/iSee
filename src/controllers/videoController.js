@@ -498,7 +498,7 @@ exports.adminBlockVideo = async (req, res) => {
 
     res.status(200).send({ message: `Vidéo bloquée` });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).send({ error: "Error changing video state" });
   }
 };
@@ -524,7 +524,7 @@ exports.adminUnblockVideo = async (req, res) => {
 
     res.status(200).send({ message: `Vidéo débloquée` });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(500).send({ error: "Error changing video state" });
   }
 };
