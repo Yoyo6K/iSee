@@ -18,6 +18,8 @@ const { Server } = require("socket.io");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const ioCookieParser = require("socket.io-cookie-parser");
+const fs = require("fs");
+const md5 = require("md5");
 /**
  * * MONGO
  */
@@ -74,6 +76,7 @@ app.use(
   })
 );
 
+app.use(bodyParser.raw({type:'application/octet-stream', limit:'100mb'}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
@@ -95,6 +98,33 @@ app.use("/api/users", userRoutes);
 app.use("/api/videos", videoRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/uploads", express.static("uploads"));
+
+
+app.post("/upload", (req, res) => {
+  console.log("upload")
+  const destLocal = process.env.INIT_CWD;
+    fs.mkdirSync(destLocal +"/uploads");
+  const { name, currentChunkIndex, totalChunks } = req.query;
+  const firstChunk = parseInt(currentChunkIndex) === 0;
+  const lastChunk = parseInt(currentChunkIndex) === parseInt(totalChunks) - 1;
+  const ext = name.split(".").pop();
+  const data = req.body.toString().split(",")[1];
+  const buffer = Buffer.from(data, "base64"); // Utilisation de Buffer.from() au lieu de new Buffer()
+  const tmpFilename = "tmp_" + md5(name + req.ip) + "." + ext;
+  if (firstChunk && fs.existsSync("./uploads/" + tmpFilename)) {
+    fs.unlinkSync("./uploads/" + tmpFilename);
+  }
+  fs.appendFileSync("./uploads/" + tmpFilename, buffer);
+  if (lastChunk) {
+    const finalFilename = md5(Date.now()).substr(0, 6) + "." + ext;
+    fs.renameSync("./uploads/" + tmpFilename, "./uploads/" + finalFilename);
+    res.json({ finalFilename });
+  } else {
+    res.json("ok");
+  }
+});
+
 
 /**
  * * SWAGGER
