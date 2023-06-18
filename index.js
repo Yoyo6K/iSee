@@ -100,11 +100,9 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static("uploads"));
 
-
+const destLocal = process.env.INIT_CWD;
 app.post("/api/upload", (req, res) => {
-  console.log("upload")
-  const destLocal = process.env.INIT_CWD;
-    fs.mkdirSync(destLocal +"/uploads");
+  fs.mkdirSync("./uploads");
   const { name, currentChunkIndex, totalChunks } = req.query;
   const firstChunk = parseInt(currentChunkIndex) === 0;
   const lastChunk = parseInt(currentChunkIndex) === parseInt(totalChunks) - 1;
