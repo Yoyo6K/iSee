@@ -362,11 +362,11 @@ exports.uploadVideo = async (req, res) => {
 
     const FILE_URL_PATH = process.env.FILE_URL;
 
-    const uploadIdSTR = req.locals.uploadId;
+    const uploadIdSTR = req.locals?.uploadId;
 
-    const videoPathLocal = req.files["video"][0].path;
-    const videoPath = videoPathLocal.replace(destServer, FILE_URL_PATH);
-    const videoSize = req.files["video"][0].size;
+    //const videoPathLocal = req.files["video"][0].path;
+    const videoPath = req.body?.video_path; // videoPathLocal.replace(destServer, FILE_URL_PATH);
+    const videoSize = req.body?.video_size;//req.files["video"][0].size;
 
     const thumbnailPathLocal = req.files["thumbnail"][0].path;
 

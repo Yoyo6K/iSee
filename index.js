@@ -99,44 +99,7 @@ app.use("/api/videos", videoRoutes);
 app.use("/api/comments", commentRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static("uploads"));
-app.post("/api/upload", (req, res) => {
-  const uploadDir = "./uploads";
 
-  if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-  }
-
-  try {
-    const { name, currentChunkIndex, totalChunks } = req.query;
-    const firstChunk = parseInt(currentChunkIndex) === 0;
-    const lastChunk = parseInt(currentChunkIndex) === parseInt(totalChunks) - 1;
-    const ext = name.split(".").pop();
-    const data = req.body.toString().split(",")[1];
-    const buffer = Buffer.from(data, "base64"); // Utilisation de Buffer.from() au lieu de new Buffer()
-    const tmpFilename = "tmp_" + md5(name + req.ip) + "." + ext;
-
-    console.log("uploading...", currentChunkIndex);
-    if (firstChunk && fs.existsSync("./uploads/" + tmpFilename)) {
-      fs.unlinkSync("./uploads/" + tmpFilename);
-    }
-    fs.appendFileSync("./uploads/" + tmpFilename, buffer);
-
-    if (lastChunk) {
-      const finalFilename = md5(Date.now()).substr(0, 6) + "." + ext;
-      fs.renameSync("./uploads/" + tmpFilename, "./uploads/" + finalFilename);
-      res.json({ finalFilename });
-    } else {
-      res.json("ok");
-    }
-  } catch (error) {
-    console.error("Erreur lors du traitement de la requête :", error);
-    res
-      .status(500)
-      .json({
-        error: "Une erreur s'est produite lors du téléchargement du fichier.",
-      });
-  }
-});
 
 
 

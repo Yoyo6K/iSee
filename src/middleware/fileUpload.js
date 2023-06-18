@@ -78,7 +78,11 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     req.locals = req.locals || {}; // Créer l'objet req.locals s'il n'existe pas
-    req.locals.uploadId = req.locals.uploadId || mongoose.Types.ObjectId(); // Générer l'UUID si nécessaire
+    if (req.body?.video_path)
+    {
+      req.locals.uploadId = path.parse(req.body.video_path)?.name;
+    }
+      req.locals.uploadId = req.locals.uploadId || mongoose.Types.ObjectId(); // Générer l'UUID si nécessaire
     cb(null, req.locals.uploadId + path.extname(file.originalname));
   },
 });
