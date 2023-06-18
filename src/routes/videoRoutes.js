@@ -83,7 +83,7 @@ router.post("/uploadVideo",isAuth, (req, res) => {
     const ext = name.split(".").pop();
     const data = req.body.toString().split(",")[1];
     const buffer = Buffer.from(data, "base64"); // Utilisation de Buffer.from() au lieu de new Buffer()
-    const tmpFilename = "tmp_" + md5(name + req.ip) + "." + ext;
+    const tmpFilename = "tmp_" + md5(name) + "." + ext;
 
     console.log("Uploading : ",currentChunkIndex);
 
