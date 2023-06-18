@@ -171,21 +171,16 @@ const checkAuthentication = async (req, res, responseType = "http") => {
     req.user = user;
     return { isAuthenticated: true };
   } catch (err) {
-    console.log(err);
-    if (responseType == "http")
-      return {
-        isAuthenticated: false,
-        error: "Internal error",
-        statusCode: 500,
-      };
-    // res.status(500).json({ error: "Internal error" + err.message });
-    else return { isAuthenticated: false, error: "Internal error" };
+    return {
+      isAuthenticated: false,
+      error: "Internal error",
+      statusCode: 500,
+    };
   }
 };
 
 exports.isAuth = async (req, res, next) => {
   try {
-    console.log("checkings");
     const { isAuthenticated, error, remainingTime, statusCode } =
       await checkAuthentication(req, res);
 
@@ -206,9 +201,10 @@ exports.isAuth = async (req, res, next) => {
 };
 
 exports.checkAuthStatus = async (req, res, next) => {
-  const { isAuthenticated, error, remainingTime, statusCode } =await checkAuthentication(req, res);
+  const { isAuthenticated, error, remainingTime, statusCode } =
+    await checkAuthentication(req, res);
   req.isAuthenticated = false;
-    let message = `${error}`;
+  let message = `${error}`;
   if (message.includes("You're banned")) {
     if (remainingTime) {
       message = `${message} ${remainingTime}`;
