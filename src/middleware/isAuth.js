@@ -143,7 +143,7 @@ const checkAuthentication = async (req, res, responseType = "http") => {
         const old_refresh = user.token;
         // Mettez à jour le token de rafraîchissement dans la base de données
         user.token = newRefreshToken;
-        user.expiresAt = Date.now() + 20 * 60 * 1000; // 5 heures à partir de maintenant
+        user.expiresAt = Date.now() + 2 * 60 * 60 * 1000; //  3 heures en millisecondes
         await user.save();
         console.log(
           "new refresh token ",
@@ -157,7 +157,7 @@ const checkAuthentication = async (req, res, responseType = "http") => {
         res.cookie("refresh_token", newRefreshToken, {
           httpOnly: true,
           secure: isDevelopment ? false : true,
-          maxAge: 20 * 60 * 1000,
+          maxAge: 2 * 60 * 60 * 1000, // 3 heures en millisecondes,
         });
       } else {
         return {

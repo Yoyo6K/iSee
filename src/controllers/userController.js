@@ -173,7 +173,7 @@ exports.loginUsers = async (req, res) => {
 
               await User.findByIdAndUpdate(user._id, {
                 token: refreshToken,
-                expiresAt: Date.now() + 20 * 60 * 1000,
+                expiresAt: Date.now() + 2 * 60 * 60 * 1000,
               });
 
               res.cookie("access_token", token, {
@@ -186,7 +186,7 @@ exports.loginUsers = async (req, res) => {
               res.cookie("refresh_token", refreshToken, {
                 httpOnly: true,
                 secure: isDevelopment ? false : true,
-                maxAge: 20 * 60 * 1000,
+                maxAge: 2 * 60 * 60 * 1000,
               });
               res.send({
                 xsrfToken: xsrfToken,
