@@ -1265,6 +1265,106 @@
         }
       }
     },
+    "/api/videos/admin/block/{videoId}": {
+      "put": {
+        "tags": ["Videos"],
+        "summary": "Block a Video by ID",
+        "parameters": [
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the video to block",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "XSRF-Token": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Video has been blocked"
+          },
+          "400": {
+            "description": "Invalid state value"
+          },
+          "404": {
+            "description": "Video not found"
+          },
+          "500": {
+            "description": "Error changing video state"
+          }
+        }
+      }
+    },    
+    "/api/videos/admin/unblock/{videoId}": {
+      "put": {
+        "tags": ["Videos"],
+        "summary": "Unblock a Video by ID",
+        "parameters": [
+          {
+            "name": "videoId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the video to unblock",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "security": [
+          {
+            "XSRF-Token": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Video has been unblocked"
+          },
+          "400": {
+            "description": "Invalid state value"
+          },
+          "404": {
+            "description": "Video not found"
+          },
+          "500": {
+            "description": "Error changing video state"
+          }
+        }
+      }
+    },
+    "/api/videos/similarVideo/{userId}": {
+      "get": {
+        "tags": ["Videos"],
+        "summary": "Get Similar Videos by User ID",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the user to get similar videos",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Error getting videos"
+          }
+        }
+      }
+    },    
     "/api/videos/admin/delete/{videoId}": {
       "delete": {
         "tags": ["Videos"],
