@@ -113,6 +113,9 @@ app.post("/api/upload", (req, res) => {
   const data = req.body.toString().split(",")[1];
   const buffer = Buffer.from(data, "base64"); // Utilisation de Buffer.from() au lieu de new Buffer()
   const tmpFilename = "tmp_" + md5(name + req.ip) + "." + ext;
+
+
+  console.logs("uploading...", currentChunkIndex);
   if (firstChunk && fs.existsSync("./uploads/" + tmpFilename)) {
     fs.unlinkSync("./uploads/" + tmpFilename);
   }
