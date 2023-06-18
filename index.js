@@ -100,7 +100,6 @@ app.use("/api/comments", commentRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static("uploads"));
 
-const destLocal = process.env.INIT_CWD;
 app.post("/api/upload", (req, res) => {
   fs.mkdirSync("./uploads");
   const { name, currentChunkIndex, totalChunks } = req.query;
