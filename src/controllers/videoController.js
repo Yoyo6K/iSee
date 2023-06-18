@@ -366,7 +366,7 @@ exports.uploadVideo = async (req, res) => {
 
     //const videoPathLocal = req.files["video"][0].path;
     const videoPath = req.body?.video_path; // videoPathLocal.replace(destServer, FILE_URL_PATH);
-    const videoSize = req.body?.video_size;//req.files["video"][0].size;
+    const videoSize = req.body?.video_size; //req.files["video"][0].size;
 
     const thumbnailPathLocal = req.files["thumbnail"][0].path;
 
@@ -585,7 +585,14 @@ exports.similarVideo = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const userVideos = await Video.find({ ownerId: userId })
+    const { videoId } = req.query;
+
+    const defaultState = EnumVideo.Public;
+    let userVideos = await Video.find({
+      ownerId: userId,
+      state: defaultState,
+      _id: { $ne: videoId },
+    })
       .populate("ownerId")
       .limit(10);
 
@@ -594,9 +601,12 @@ exports.similarVideo = async (req, res) => {
     let randomVideos = [];
 
     if (remainingVideosCount > 0) {
-      randomVideos = await Video.find({ _id: { $nin: userVideos.map(video => video._id) } })
+      randomVideos = await Video.find({
+        _id: { $nin: userVideos.map((video) => video._id), $ne: videoId },
+        state: defaultState,
+      })
         .limit(remainingVideosCount)
-        .populate('ownerId');
+        .populate("ownerId");
     }
 
     const videos = [...userVideos, ...randomVideos];
