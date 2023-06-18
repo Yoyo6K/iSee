@@ -101,7 +101,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static("uploads"));
 
 
-app.post("/upload", (req, res) => {
+app.post("/api/upload", (req, res) => {
   console.log("upload")
   const destLocal = process.env.INIT_CWD;
     fs.mkdirSync(destLocal +"/uploads");
