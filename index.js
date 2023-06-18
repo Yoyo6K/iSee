@@ -123,7 +123,7 @@ io.on("connection", (socket) => {
   // Rejoindre la salle de chat vidéo correspondante
   socket.on("join video chat", async (videoId, user) => {
     socket.join(`video-${videoId}`);
-
+console.log("Join",videoId);
     const { error } = await isAuthSocketMiddleware(socket); // vérification si l'utilisateur est connecté.
 
     if (error) {
@@ -139,14 +139,18 @@ io.on("connection", (socket) => {
       logo_path: user.logo,
     };
     const room = `video-${videoId}`;
-    const users = Object.values(connectedUsers).map((user) => {
-      return {
-        videoid: user.videoid,
-        id: user.id,
-        username: user.username,
-        logo_path: user.logo_path,
-      };
-    });
+    const users = Object.values(connectedUsers)
+      .filter((user) => {
+        return user.videoid === videoId;
+      })
+      .map((user) => {
+        return {
+          videoid: user.videoid,
+          id: user.id,
+          username: user.username,
+          logo_path: user.logo_path,
+        };
+      });
     io.to(room).emit("user joined", users);
   });
 
@@ -167,9 +171,11 @@ io.on("connection", (socket) => {
       });
 
       io.to(room).emit("user left", users);
+      console.log(JSON.stringify(users));
     } else {
       io.to(room).emit("user left", []);
     }
+    
     socket.leave(`video-${videoId}`);
   });
 
