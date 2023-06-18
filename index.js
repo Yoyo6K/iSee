@@ -101,7 +101,11 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static("uploads"));
 
 app.post("/api/upload", (req, res) => {
-  fs.mkdirSync("./uploads");
+  const uploadDir = "./uploads";
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+  }
   const { name, currentChunkIndex, totalChunks } = req.query;
   const firstChunk = parseInt(currentChunkIndex) === 0;
   const lastChunk = parseInt(currentChunkIndex) === parseInt(totalChunks) - 1;
