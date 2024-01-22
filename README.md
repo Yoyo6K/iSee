@@ -1,4 +1,4 @@
-# Isee API
+# iSee API
 
 # Description
 Ceci est une API pour gérer les utilisateurs et les vidéos d'une plateforme de streaming.
