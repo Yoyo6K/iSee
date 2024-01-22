@@ -19,7 +19,7 @@ Statistiques : Les utilisateurs peuvent consulter des statistiques sur les vidé
 
 # Installation
 1. Clonez le référentiel ou téléchargez les fichiers source.
-```git clone [<lien>](https://github.com/Yoyo6K/iSee.git)```
+```git clone https://github.com/Yoyo6K/iSee.git```
 2. Accédez au répertoire du projet :
 ```cd <repertoire>```
 3. Installez les dépendances en exécutant la commande suivante :
